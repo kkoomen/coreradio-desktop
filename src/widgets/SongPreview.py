@@ -11,7 +11,7 @@ TODO
 from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QLabel, QVBoxLayout, QWidget
 from PySide2.QtGui import QImage, QPixmap
-from helpers.RunThread import RunThread
+from widgets.RunThread import RunThread
 import time
 import requests
 
@@ -19,12 +19,15 @@ class SongPreview(QWidget):
 
     def __init__(self, **kwargs):
         super(SongPreview, self).__init__()
+        self.image_content = None
         self.image_size = 300
-        self.thread = RunThread(self.fetch_image, self.on_image_loaded)
-
-        self.layout = QVBoxLayout()
         self.image = kwargs['image']
         self.title = kwargs['title']
+
+        if self.image is not None:
+            self.thread = RunThread(self.fetch_image, self.on_image_loaded)
+
+        self.layout = QVBoxLayout()
 
         self.image_label = QLabel()
         self.image_label.setMinimumWidth(self.image_size)
@@ -44,8 +47,12 @@ class SongPreview(QWidget):
         return True
 
     def on_image_loaded(self):
-        imgWidget = QImage()
-        imgWidget.loadFromData(self.image_content)
-        picture = QPixmap(imgWidget)
-        picture = picture.scaled(self.image_size, self.image_size, Qt.KeepAspectRatio)
-        self.image_label.setPixmap(picture)
+        if self.image_content:
+            imgWidget = QImage()
+            imgWidget.loadFromData(self.image_content)
+            picture = QPixmap(imgWidget)
+            picture = picture.scaled(self.image_size, self.image_size, Qt.KeepAspectRatio)
+            self.image_label.setPixmap(picture)
+        else:
+            # TODO: set default image
+            pass
