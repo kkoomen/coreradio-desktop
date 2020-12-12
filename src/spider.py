@@ -21,7 +21,11 @@ class CoreRadioSpider:
 
     def get_home_feed(self, page=1):
         feed = []
-        html = requests.get(self.url('/page/{}'.format(page))).text
+
+        url = self.url('/page/{}'.format(page))
+        print('GET {}'.format(url))
+
+        html = requests.get(url).text
         soup = BeautifulSoup(html, 'html.parser')
         container = soup.find(id='dle-content')
         if container:
