@@ -57,6 +57,7 @@ class CoreRadioSpider:
             # Get the song list info
             info_container = container.select('.full-news-info')[0]
             songs = info_container.find_all(string=re.compile(r'\d+\.\s*.+'))
+            result['songlist'] = []
             if len(songs) > 0:
                 # Check if this is a full album release or not.
                 result['full_release'] = True
@@ -66,7 +67,6 @@ class CoreRadioSpider:
                         break
 
                 # Add all the songnames to the list.
-                result['songlist'] = []
                 for text in songs:
                     songname = str(text)
                     released = True if result['full_release'] else False
@@ -74,9 +74,15 @@ class CoreRadioSpider:
                         released = True
                         songname += str(text.next_sibling.string)
                     result['songlist'].append({
-                        'name': songname.strip(),
+                        'name': re.sub(r'^\d+\s*\.\s*', '', songname.strip()),
                         'released': released
                     })
+            else:
+                songname = re.search(r'[^-]+ - ([\w\s]+) .*', result['title']).group(1)
+                result['songlist'].append({
+                    'name': songname.strip() if songname else '<unknown>',
+                    'released': True
+                })
         return result
 
     def search(self, keywords=None):

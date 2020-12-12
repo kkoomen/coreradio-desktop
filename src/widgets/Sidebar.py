@@ -10,6 +10,9 @@ TODO
 
 from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QWidget, QVBoxLayout, QLabel, QScrollArea
+from widgets.home_feed import HomeFeed
+from utils import clickable
+from signals import PageSignal
 
 class Sidebar(QWidget):
 
@@ -28,9 +31,24 @@ class Sidebar(QWidget):
 
         self.flow_layout = QVBoxLayout(widget, alignment=Qt.AlignTop)
 
-        label = QLabel('Home')
-        label.setStyleSheet('background-color: none;')
-        self.flow_layout.addWidget(label)
+        self.register_menu_item('Home', HomeFeed)
 
         self.layout.addWidget(self.scrollarea)
         self.setLayout(self.layout)
+
+    def register_menu_item(self, label, page):
+        label = QLabel(label)
+        label.setStyleSheet(
+            '''
+            QLabel {
+                padding: 20px;
+                border-radius: 8px;
+                background-color: transparent;
+            }
+            QLabel:hover {
+                background-color: rgba(255, 255, 255, 0.1);
+            }
+            '''
+        )
+        clickable(label).connect(lambda: PageSignal.changed.emit(page()))
+        self.flow_layout.addWidget(label)

@@ -20,7 +20,7 @@ import requests
 
 class Song(QWidget):
 
-    def __init__(self, song=None):
+    def __init__(self, song=None, index=None):
         super(Song, self).__init__()
         self.song = song
 
@@ -39,7 +39,8 @@ class Song(QWidget):
 
         self.layout = QHBoxLayout()
         self.layout.setMargin(0)
-        self.layout.addWidget(QLabel(self.song['name']))
+        label = '{}.  {}'.format(index, self.song['name'])
+        self.layout.addWidget(QLabel(label))
         self.setLayout(self.layout)
 
 
@@ -52,8 +53,8 @@ class Songlist(QWidget):
         self.layout = QVBoxLayout()
         self.layout.setMargin(0)
         self.layout.setSpacing(25)
-        for song in self.songlist:
-            self.layout.addWidget(Song(song=song))
+        for index, song in enumerate(self.songlist):
+            self.layout.addWidget(Song(song=song, index=index+1))
         self.setLayout(self.layout)
 
 class SongDetailPage(QWidget):

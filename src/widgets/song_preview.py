@@ -34,6 +34,7 @@ class SongPreview(QWidget):
         self.layout = QVBoxLayout()
 
         self.image_label = QLabel()
+        self.image_label.setStyleSheet('background-color: rgba(0, 0, 0, 0.1);')
         self.image_label.setMinimumWidth(self.image_size)
         self.image_label.setMinimumHeight(self.image_size)
         clickable(self.image_label).connect(self.on_click)
@@ -41,6 +42,7 @@ class SongPreview(QWidget):
 
         title = QLabel(self.title)
         title.setWordWrap(True)
+        title.setFixedWidth(300)
         self.layout.addWidget(title)
 
         self.setLayout(self.layout)
@@ -61,6 +63,6 @@ class SongPreview(QWidget):
             picture = QPixmap(imgWidget)
             picture = picture.scaled(self.image_size, self.image_size, Qt.KeepAspectRatio)
             self.image_label.setPixmap(picture)
+            print('GET {}'.format(self.image))
         else:
-            # TODO: set default image
-            pass
+            print('[FAILED] GET {}'.format(self.image))

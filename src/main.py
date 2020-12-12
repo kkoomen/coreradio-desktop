@@ -17,7 +17,7 @@ class MainWindow(QWidget):
     def __init__(self):
         super(MainWindow, self).__init__()
         self.setWindowTitle("CORERADIO")
-        self.resize(1361, 800)
+        self.resize(1353, 800)
 
         self.layout = QHBoxLayout()
         self.layout.setMargin(0)
