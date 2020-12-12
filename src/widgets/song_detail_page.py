@@ -57,6 +57,7 @@ class Songlist(QWidget):
             self.layout.addWidget(Song(song=song, index=index+1))
         self.setLayout(self.layout)
 
+
 class SongDetailPage(QWidget):
 
     def __init__(self, url=None):
