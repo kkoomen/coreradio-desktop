@@ -8,9 +8,9 @@ TODO
 """
 
 import sys
-from PySide2.QtWidgets import QApplication, QWidget, QHBoxLayout
-from widgets.Sidebar import Sidebar
-from widgets.PageContent import PageContent
+from PySide2.QtWidgets import QApplication, QHBoxLayout, QWidget
+from widgets.sidebar import Sidebar
+from widgets.page_content import PageContent
 
 class MainWindow(QWidget):
 

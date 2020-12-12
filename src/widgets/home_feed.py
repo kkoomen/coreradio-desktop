@@ -10,19 +10,20 @@ TODO
 
 from PySide2.QtCore import QEvent
 from PySide2.QtWidgets import QScrollArea, QVBoxLayout, QWidget, QLabel
-from widgets.SongPreview import SongPreview
-from widgets.FlowLayout import FlowLayout
-from widgets.RunThread import RunThread
+from widgets.song_preview import SongPreview
+from widgets.flow_layout import FlowLayout
+from widgets.run_thread import RunThread
 from spider import CoreRadioSpider
 
-class PageContent(QWidget):
+class HomeFeed(QWidget):
 
     def __init__(self):
-        super(PageContent, self).__init__()
+        super(HomeFeed, self).__init__()
+        self.run_get_feed_thread()
+
         self.feed = []
         self.page = 1
         self.loading = True
-        self.thread = RunThread(self.get_feed, self.on_feed_receive)
 
         self.layout = QVBoxLayout()
         self.layout.setMargin(0)
@@ -41,6 +42,9 @@ class PageContent(QWidget):
         self.layout.addWidget(self.page_widget)
         self.setLayout(self.layout)
 
+    def run_get_feed_thread(self):
+        self.thread = RunThread(self.get_feed, self.on_feed_receive)
+
     def eventFilter(self, source, event):
         if (event.type() == QEvent.Wheel and source is self.page_widget.viewport() and not self.loading):
             scrollbar = self.page_widget.verticalScrollBar()
@@ -49,8 +53,8 @@ class PageContent(QWidget):
             if y >= bottom:
                 self.page += 1
                 self.loading = True
-                self.thread = RunThread(self.get_feed, self.on_feed_receive)
-        return super(PageContent, self).eventFilter(source, event)
+                self.run_get_feed_thread()
+        return super(HomeFeed, self).eventFilter(source, event)
 
     def get_feed(self):
         spider = CoreRadioSpider()
@@ -60,7 +64,9 @@ class PageContent(QWidget):
     def on_feed_receive(self):
         if len(self.feed) > 0:
             for item in self.feed:
-                preview_widget = SongPreview(image=item['image'], title=item['title'])
+                preview_widget = SongPreview(image=item['image'],
+                                             title=item['title'],
+                                             url=item['href'])
                 self.flow_layout.addWidget(preview_widget)
                 self.loading = False
         else:

@@ -11,7 +11,10 @@ TODO
 from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QLabel, QVBoxLayout, QWidget
 from PySide2.QtGui import QImage, QPixmap
-from widgets.RunThread import RunThread
+from widgets.run_thread import RunThread
+from widgets.song_detail_page import SongDetailPage
+from signals import PageSignal
+from utils import clickable
 import time
 import requests
 
@@ -23,6 +26,7 @@ class SongPreview(QWidget):
         self.image_size = 300
         self.image = kwargs['image']
         self.title = kwargs['title']
+        self.url = kwargs['url']
 
         if self.image is not None:
             self.thread = RunThread(self.fetch_image, self.on_image_loaded)
@@ -32,6 +36,7 @@ class SongPreview(QWidget):
         self.image_label = QLabel()
         self.image_label.setMinimumWidth(self.image_size)
         self.image_label.setMinimumHeight(self.image_size)
+        clickable(self.image_label).connect(self.on_click)
         self.layout.addWidget(self.image_label)
 
         title = QLabel(self.title)
@@ -39,6 +44,9 @@ class SongPreview(QWidget):
         self.layout.addWidget(title)
 
         self.setLayout(self.layout)
+
+    def on_click(self):
+        PageSignal.changed.emit(SongDetailPage(url=self.url))
 
     def fetch_image(self):
         time.sleep(1)
