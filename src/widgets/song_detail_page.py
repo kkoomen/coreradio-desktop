@@ -63,7 +63,7 @@ class SongDetailPage(QWidget):
     def __init__(self, url=None):
         super(SongDetailPage, self).__init__()
         self.url = url
-        self.loading = True
+        self.loading = False
         self.song = None
         self.thread = RunThread(self.get_song_info, self.on_song_info)
 
@@ -118,6 +118,7 @@ class SongDetailPage(QWidget):
             alignment=Qt.AlignTop)
 
     def get_song_info(self):
+        self.loading = True
         spider = CoreRadioSpider()
         self.song = spider.get_song_info(url=self.url)
         return True

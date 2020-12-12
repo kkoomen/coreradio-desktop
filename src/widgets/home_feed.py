@@ -23,7 +23,7 @@ class HomeFeed(QWidget):
 
         self.feed = []
         self.page = 1
-        self.loading = True
+        self.loading = False
 
         self.layout = QVBoxLayout()
         self.layout.setMargin(0)
