@@ -1,6 +1,6 @@
 # Coreradio Desktop
 
-TODO
+![preview](./image.jpg)
 
 # Installation
 

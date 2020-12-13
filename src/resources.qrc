@@ -1,7 +1,6 @@
 <RCC>
   <qresource prefix="/icons/24x24">
     <file alias="home">icons/24x24/home.png</file>
-    <file alias="arrow-left">icons/24x24/arrow-left.png</file>
     <file alias="download">icons/24x24/download.png</file>
     <file alias="magnify">icons/24x24/magnify.png</file>
   </qresource>

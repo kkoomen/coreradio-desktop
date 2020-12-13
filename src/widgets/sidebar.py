@@ -13,7 +13,8 @@ from PySide2.QtGui import QIcon
 from PySide2.QtWidgets import QScrollArea, QVBoxLayout, QHBoxLayout, QWidget, QLabel
 from widgets.home_feed import HomeFeed
 from signals import PageSignal
-from utils import clickable
+from utils import clickable, css
+import colors
 
 class Sidebar(QWidget):
 
@@ -42,20 +43,23 @@ class Sidebar(QWidget):
         menu_item_widget.setObjectName(u'menu_item_widget')
         menu_item_widget_layout = QHBoxLayout(alignment=Qt.AlignLeft)
         menu_item_widget.setLayout(menu_item_widget_layout)
-        menu_item_widget.setStyleSheet(
+        menu_item_widget.setStyleSheet(css(
             '''
             #menu_item_widget {
                 border-radius: 8px;
                 background-color: transparent;
+                background-color: {{secondaryColor}};
             }
             #menu_item_widget:hover {
-                background-color: #444;
+                background-color: {{primaryColor}};
             }
             QLabel {
                 background-color: transparent;
             }
-            '''
-        )
+            ''',
+            secondaryColor=colors.SECONDARY_COLOR,
+            primaryColor=colors.PRIMARY_COLOR
+        ))
 
         clickable(menu_item_widget).connect(lambda: PageSignal.changed.emit(page()))
 

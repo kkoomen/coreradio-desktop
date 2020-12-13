@@ -53,8 +53,11 @@ class SongPreview(QWidget):
     def fetch_image(self):
         time.sleep(1)
         print('GET {}'.format(self.image))
-        response = requests.get(self.image)
-        self.image_content = response.content
+        try:
+            response = requests.get(self.image)
+            self.image_content = response.content
+        except Exception as e:
+            return False
         return True
 
     def on_image_loaded(self):

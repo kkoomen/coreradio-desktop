@@ -9,12 +9,13 @@ TODO
 
 
 from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QScrollArea, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QSizePolicy
-from PySide2.QtGui import QImage, QPixmap
+from PySide2.QtWidgets import QScrollArea, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QSizePolicy, QPushButton
+from PySide2.QtGui import QImage, QPixmap, QIcon
 from widgets.run_thread import RunThread
 from spider import CoreRadioSpider
 from typography import H1
-from utils import css
+from utils import css, clickable
+import colors
 import time
 import requests
 
@@ -52,6 +53,36 @@ class Songlist(QWidget):
         self.setLayout(self.layout)
 
 
+class Header(QWidget):
+
+    def __init__(self):
+        super(Header, self).__init__()
+        self.layout = QHBoxLayout(alignment=Qt.AlignRight)
+
+        download_btn = QPushButton()
+        download_btn.clicked.connect(lambda: print('downloading...'))
+        download_btn.setStyleSheet(css(
+            '''
+            QPushButton {
+                background-image: url(:/icons/24x24/download);
+                background-repeat: no-repeat;
+                background-position: center;
+                padding: 10px 0 10px 1px;
+                border-radius: 8px;
+                background-color: {{secondaryColor}};
+            }
+            QPushButton:hover {
+                background-color: {{primaryColor}};
+            }
+            ''',
+            secondaryColor=colors.SECONDARY_COLOR,
+            primaryColor=colors.PRIMARY_COLOR
+        ))
+        self.layout.addWidget(download_btn)
+
+        self.setLayout(self.layout)
+
+
 class SongDetailPage(QWidget):
 
     def __init__(self, url=None):
@@ -81,6 +112,9 @@ class SongDetailPage(QWidget):
         self.thread = RunThread(self.get_song_info, self.on_song_info)
 
     def render_song_info(self):
+        # Header
+        self.page_layout.addWidget(Header(song=self.song))
+
         # Title
         title = H1(self.song['title'])
         title.setWordWrap(True)
@@ -111,8 +145,11 @@ class SongDetailPage(QWidget):
     def fetch_image(self):
         time.sleep(1)
         print('GET {}'.format(self.song['image']))
-        response = requests.get(self.song['image'])
-        self.image_content = response.content
+        try:
+            response = requests.get(self.song['image'])
+            self.image_content = response.content
+        except Exception as e:
+            return True
         return True
 
     def on_image_loaded(self):
