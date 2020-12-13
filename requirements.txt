@@ -1,5 +1,11 @@
+beautifulsoup4==4.9.3
+bs4==0.0.1
 certifi==2020.12.5
 chardet==3.0.4
+click==7.1.2
+coloredlogs==15.0
+hiredis==1.1.0
+humanfriendly==9.1
 idna==2.10
 Pillow==8.0.1
 pydocstyle==5.1.1
@@ -8,4 +14,6 @@ PySide2==5.15.2
 requests==2.25.0
 shiboken2==5.15.2
 snowballstemmer==2.0.0
+soupsieve==2.1
+tabulate==0.8.7
 urllib3==1.26.2
