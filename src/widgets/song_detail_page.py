@@ -15,6 +15,7 @@ from widgets.run_thread import RunThread
 from spider import CoreRadioSpider
 from typography import H1
 from utils import css
+import time
 import requests
 
 
@@ -25,14 +26,7 @@ class Song(QWidget):
         self.song = song
 
         color = '#fff' if self.song['released'] else '#666'
-        self.setStyleSheet(css(
-            '''
-            QWidget {
-                color: {{color}}
-            }
-            ''',
-            color=color
-        ))
+        self.setStyleSheet(css('color: {{color}};', color=color))
 
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.setSizePolicy(sizePolicy)
@@ -64,8 +58,9 @@ class SongDetailPage(QWidget):
         super(SongDetailPage, self).__init__()
         self.url = url
         self.loading = False
+        self.image_content = None
+        self.image_size = 400
         self.song = None
-        self.thread = RunThread(self.get_song_info, self.on_song_info)
 
         self.layout = QVBoxLayout()
         self.layout.setMargin(0)
@@ -83,6 +78,8 @@ class SongDetailPage(QWidget):
         self.layout.addWidget(self.page_widget)
         self.setLayout(self.layout)
 
+        self.thread = RunThread(self.get_song_info, self.on_song_info)
+
     def render_song_info(self):
         # Title
         title = H1(self.song['title'])
@@ -99,23 +96,35 @@ class SongDetailPage(QWidget):
         self.page_layout.addWidget(inner_container)
 
         # Image
-        image_size = 400
-        image_label = QLabel()
-        image_label.setMinimumWidth(image_size)
-        image_label.setMinimumHeight(image_size)
-        inner_container_layout.addWidget(image_label, alignment=Qt.AlignTop)
-
-        response = requests.get(self.song['image'])
-        imgWidget = QImage()
-        imgWidget.loadFromData(response.content)
-        picture = QPixmap(imgWidget)
-        picture = picture.scaled(image_size, image_size, Qt.KeepAspectRatio)
-        image_label.setPixmap(picture)
+        self.image_label = QLabel()
+        self.image_label.setStyleSheet('background-color: #252525;')
+        self.image_label.setMinimumWidth(self.image_size)
+        self.image_label.setMinimumHeight(self.image_size)
+        inner_container_layout.addWidget(self.image_label, alignment=Qt.AlignTop)
+        self.get_image_thread = RunThread(self.fetch_image, self.on_image_loaded)
 
         # Songlist
         inner_container_layout.addWidget(
             Songlist(songlist=self.song['songlist']),
             alignment=Qt.AlignTop)
+
+    def fetch_image(self):
+        time.sleep(1)
+        print('GET {}'.format(self.song['image']))
+        response = requests.get(self.song['image'])
+        self.image_content = response.content
+        return True
+
+    def on_image_loaded(self):
+        if self.image_content:
+            imgWidget = QImage()
+            imgWidget.loadFromData(self.image_content)
+            picture = QPixmap(imgWidget)
+            picture = picture.scaled(self.image_size, self.image_size, Qt.KeepAspectRatio)
+            self.image_label.setPixmap(picture)
+            print('[DONE] GET {}'.format(self.song['image']))
+        else:
+            print('[FAILED] GET {}'.format(self.song['image']))
 
     def get_song_info(self):
         self.loading = True
