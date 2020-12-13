@@ -9,10 +9,11 @@ TODO
 
 
 from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QWidget, QVBoxLayout, QLabel, QScrollArea
+from PySide2.QtGui import QIcon
+from PySide2.QtWidgets import QScrollArea, QVBoxLayout, QHBoxLayout, QWidget, QLabel
 from widgets.home_feed import HomeFeed
-from utils import clickable
 from signals import PageSignal
+from utils import clickable
 
 class Sidebar(QWidget):
 
@@ -31,24 +32,35 @@ class Sidebar(QWidget):
 
         self.flow_layout = QVBoxLayout(widget, alignment=Qt.AlignTop)
 
-        self.register_menu_item('Home', HomeFeed)
+        self.register_menu_item('Home', 'home', HomeFeed)
 
         self.layout.addWidget(self.scrollarea)
         self.setLayout(self.layout)
 
-    def register_menu_item(self, label, page):
-        label = QLabel(label)
-        label.setStyleSheet(
+    def register_menu_item(self, text, icon, page):
+        menu_item_widget = QWidget()
+        menu_item_widget.setObjectName(u'menu_item_widget')
+        menu_item_widget_layout = QHBoxLayout(alignment=Qt.AlignLeft)
+        menu_item_widget.setLayout(menu_item_widget_layout)
+        menu_item_widget.setStyleSheet(
             '''
-            QLabel {
-                padding: 20px;
+            #menu_item_widget {
                 border-radius: 8px;
                 background-color: transparent;
             }
-            QLabel:hover {
-                background-color: rgba(255, 255, 255, 0.1);
+            #menu_item_widget:hover {
+                background-color: #444;
+            }
+            QLabel {
+                background-color: transparent;
             }
             '''
         )
-        clickable(label).connect(lambda: PageSignal.changed.emit(page()))
-        self.flow_layout.addWidget(label)
+
+        clickable(menu_item_widget).connect(lambda: PageSignal.changed.emit(page()))
+
+        icon_label = QLabel()
+        icon_label.setPixmap(QIcon(':/icons/24x24/{}'.format(icon)).pixmap(24))
+        menu_item_widget_layout.addWidget(icon_label)
+        menu_item_widget_layout.addWidget(QLabel(text))
+        self.flow_layout.addWidget(menu_item_widget)

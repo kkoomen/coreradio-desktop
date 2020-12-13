@@ -11,6 +11,8 @@ import sys
 from PySide2.QtWidgets import QApplication, QHBoxLayout, QWidget
 from widgets.sidebar import Sidebar
 from widgets.page_content import PageContent
+import resources_rc
+
 
 class MainWindow(QWidget):
 
