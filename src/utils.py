@@ -45,3 +45,10 @@ def css(text, **replacements):
         for index, err in enumerate(errors):
             print('{}. {}'.format(index + 1, err))
     return result
+
+
+def replace_multiple(text, replacements):
+    result = text
+    for regex, sub in replacements:
+        result = re.sub(regex, sub, result)
+    return result

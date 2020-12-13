@@ -9,15 +9,17 @@ TODO
 
 
 from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QScrollArea, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QSizePolicy, QPushButton
-from PySide2.QtGui import QImage, QPixmap, QIcon
+from PySide2.QtWidgets import QScrollArea, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QSizePolicy, QPushButton, QGridLayout, QDialog
+from PySide2.QtGui import QImage, QPixmap, QIcon, QFont
 from widgets.run_thread import RunThread
+from widgets.buttons import IconButton
 from spider import CoreRadioSpider
 from typography import H1
-from utils import css, clickable
+from utils import css, clickable, replace_multiple
 import colors
 import time
 import requests
+import sys
 
 
 class Song(QWidget):
@@ -55,32 +57,123 @@ class Songlist(QWidget):
 
 class Header(QWidget):
 
-    def __init__(self):
+    def __init__(self, song=None):
         super(Header, self).__init__()
-        self.layout = QHBoxLayout(alignment=Qt.AlignRight)
+        self.song = song
+        self.layout = QGridLayout()
+        self.layout.setMargin(0)
+        self.layout.setContentsMargins(0, 0, 0, 25)
 
-        download_btn = QPushButton()
-        download_btn.clicked.connect(lambda: print('downloading...'))
-        download_btn.setStyleSheet(css(
+        self.setObjectName(u'header')
+        self.setAttribute(Qt.WA_StyledBackground, True)
+        self.setStyleSheet(css(
             '''
-            QPushButton {
-                background-image: url(:/icons/24x24/download);
-                background-repeat: no-repeat;
-                background-position: center;
-                padding: 10px 0 10px 1px;
-                border-radius: 8px;
-                background-color: {{secondaryColor}};
-            }
-            QPushButton:hover {
-                background-color: {{primaryColor}};
+            #header {
+                border-bottom: 1px solid {{backgroundColor}};
             }
             ''',
-            secondaryColor=colors.SECONDARY_COLOR,
-            primaryColor=colors.PRIMARY_COLOR
+            backgroundColor=colors.SECONDARY_COLOR
         ))
-        self.layout.addWidget(download_btn)
+
+        self.left_container = QWidget()
+        self.left_container.setStyleSheet(css('color: {{color}};', color=colors.GREY_COLOR))
+        self.left_container_layout = QHBoxLayout(alignment=Qt.AlignLeft)
+        self.left_container_layout.setMargin(0)
+        self.left_container.setLayout(self.left_container_layout)
+
+        self.right_container = QWidget()
+        self.right_container_layout = QHBoxLayout(alignment=Qt.AlignRight)
+        self.right_container_layout.setMargin(0)
+        self.right_container.setLayout(self.right_container_layout)
+
+        self.layout.addWidget(self.left_container, 0, 0)
+        self.layout.addWidget(self.right_container, 0, 1)
+
+        # Info on the left
+        info_text = '{} · {} songs'.format(self.song['genre'], len(self.song['songlist'])).upper()
+        self.left_container_layout.addWidget(QLabel(info_text))
+
+        # Download buttons on the right
+        if 'download_links' in self.song:
+            for item in self.song['download_links']:
+                btn = IconButton(text=item['label'],
+                                 icon='download',
+                                 on_click=self.download(item))
+                self.right_container_layout.addWidget(btn)
 
         self.setLayout(self.layout)
+
+    def download_song(self, item, filename):
+        res = requests.get(item['url'], stream=True)
+        print('GET {}'.format(item['url']))
+
+        total_length = int(res.headers.get('content-length'))
+        current_length = 1
+        with open('/Users/jinkeming/NewMusic/{}'.format(filename), 'wb') as file:
+            for chunk in res.iter_content(chunk_size=1024):
+                if chunk:
+                    current_length += len(chunk)
+                    download_percentage = int(100 / total_length * current_length)
+                    download_text = '\n'.join([
+                        'Downloaded: {}%'.format(download_percentage),
+                        'Title: {}'.format(self.song['title']),
+                        'Quality: {}'.format(item['label']),
+                        'Saving as: {}'.format(filename),
+                    ])
+                    self.download_text_label.setText(download_text)
+                    sys.stdout.write('\r{}% Downloading {} (Saving as: {})'.format(download_percentage, self.song['title'], filename))
+                    file.write(chunk)
+            sys.stdout.write('\n')
+            file.close()
+        return True
+
+
+    def on_download_song_complete(self):
+        self.download_dialog.setWindowFlags(
+            Qt.WindowCloseButtonHint |
+            Qt.Window |
+            Qt.CustomizeWindowHint |
+            Qt.WindowTitleHint |
+            Qt.WindowMinimizeButtonHint
+        )
+        self.download_dialog.show()
+
+    def download(self, item):
+        def closure():
+            self.download_dialog = QDialog()
+            self.download_dialog.setWindowFlags(
+                Qt.Window |
+                Qt.CustomizeWindowHint |
+                Qt.WindowTitleHint |
+                Qt.WindowMinimizeButtonHint
+            )
+            self.download_dialog.setModal(True)
+            self.download_dialog_layout = QVBoxLayout()
+            self.download_text_label = QLabel()
+            font = QFont()
+            font.setKerning(False)
+            self.download_text_label.setFont(font)
+            self.download_dialog_layout.addWidget(self.download_text_label)
+            self.download_dialog.setLayout(self.download_dialog_layout)
+
+            filename = replace_multiple(self.song['title'], (
+                (r'\s+', '_'),
+                (r'[^\w]+', ''),
+                (r'_+', '_'),
+            )).lower()
+            filename = '{}.tar'.format(filename)
+
+            download_text = '\n'.join([
+                'Downloaded: 0%',
+                'Title: {}'.format(self.song['title']),
+                'Quality: {}'.format(item['label']),
+                'Saving as: {}'.format(filename),
+            ])
+            self.download_text_label.setText(download_text)
+
+            self.download_thread = RunThread(self.download_song, self.on_download_song_complete, item, filename)
+            self.download_dialog.exec()
+        return closure
 
 
 class SongDetailPage(QWidget):

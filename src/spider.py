@@ -50,7 +50,7 @@ class CoreRadioSpider:
         if container:
             script_tag = container.select('[type="application/ld+json"]')
             inline_info = json.loads(str(script_tag[0].string))
-            result = inline_info['description']
+            result['genre'] = inline_info['description']['genre']
             result['image'] = inline_info['image']
             result['title'] = inline_info['name']
 
@@ -83,6 +83,20 @@ class CoreRadioSpider:
                     'name': songname.group(1).strip() if songname else result['title'],
                     'released': True
                 })
+
+            # Get download links
+            download_links_container = container.select('.quote')[0]
+            if download_links_container:
+                result['download_links'] = []
+                for link in download_links_container.select('a'):
+                    label = str(link.string)
+                    if label == '(MIRROR)':
+                        continue
+                    result['download_links'].append({
+                        'url': re.sub(r'[^?]+\?s=(.+)', r'\1', link.get('href')),
+                        'label': label,
+                    })
+
         return result
 
     def search(self, keywords=None):
