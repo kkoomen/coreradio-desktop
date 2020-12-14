@@ -90,12 +90,11 @@ class CoreRadioSpider:
                 result['download_links'] = []
                 for link in download_links_container.select('a'):
                     label = str(link.string)
-                    if label == '(MIRROR)':
-                        continue
-                    result['download_links'].append({
-                        'url': re.sub(r'[^?]+\?s=(.+)', r'\1', link.get('href')),
-                        'label': label,
-                    })
+                    if label != '(MIRROR)':
+                        result['download_links'].append({
+                            'url': re.sub(r'[^?]+\?s=(.+)', r'\1', link.get('href')),
+                            'label': label,
+                        })
 
         return result
 
