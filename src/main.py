@@ -11,7 +11,14 @@ import sys
 from PySide2.QtWidgets import QApplication, QHBoxLayout, QWidget
 from widgets.sidebar import Sidebar
 from widgets.page_content import PageContent
+from constants import CONFIG_DIR
 import resources_rc
+import os
+
+
+if not os.path.exists(CONFIG_DIR):
+    print('Creating new config directory at {}'.format(CONFIG_DIR))
+    os.mkdir(CONFIG_DIR)
 
 
 class MainWindow(QWidget):

@@ -12,6 +12,8 @@ from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QScrollArea, QVBoxLayout, QWidget, QLabel, QFileDialog, QDialog
 from utils import css, clickable
 from signals import UserSettingsSignal
+from constants import CONFIG_DIR
+import json
 import colors
 import os
 
@@ -61,6 +63,7 @@ class UserSettings(QWidget):
     def __init__(self):
         super(UserSettings, self).__init__()
         UserSettingsSignal.put.connect(self.update)
+        self.settings_file = '{}/settings.json'.format(CONFIG_DIR)
         self.settings = self.load()
         self.layout = QVBoxLayout(alignment=Qt.AlignTop)
         self.layout.setMargin(25)
@@ -68,9 +71,22 @@ class UserSettings(QWidget):
         self.setLayout(self.layout)
 
     def load(self):
-        return {
-            'file_storage_location': '{}/Downloads'.format(os.path.expanduser('~')),
-        }
+
+        if not os.path.exists(self.settings_file):
+            default_settings = {
+                'file_storage_location': '{}/Downloads'.format(os.path.expanduser('~')),
+            }
+            self.save(default_settings)
+            return default_settings
+
+        return json.loads(open(self.settings_file, 'r').read())
 
     def update(self, key, value):
         self.settings[key] = value
+        self.save()
+
+    def save(self, settings=None):
+        contents = self.settings if settings is None else settings
+        with open(self.settings_file, 'w') as f:
+            json.dump(contents, f)
+            f.close()
