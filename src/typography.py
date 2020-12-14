@@ -25,3 +25,10 @@ class H1(Heading):
         super(H1, self).__init__(*args, **kwargs)
         self.font.setPointSize(34)
         self.setFont(self.font)
+
+class H2(Heading):
+
+    def __init__(self, *args, **kwargs):
+        super(H2, self).__init__(*args, **kwargs)
+        self.font.setPointSize(30)
+        self.setFont(self.font)

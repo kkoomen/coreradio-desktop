@@ -9,13 +9,13 @@ TODO
 
 
 from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QScrollArea, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QSizePolicy, QPushButton, QGridLayout, QDialog
-from PySide2.QtGui import QImage, QPixmap, QIcon, QFont
+from PySide2.QtWidgets import QDialog, QGridLayout, QHBoxLayout, QLabel, QScrollArea, QSizePolicy, QVBoxLayout, QWidget
+from PySide2.QtGui import QFont, QImage, QPixmap
 from widgets.run_thread import RunThread
 from widgets.buttons import IconButton
 from spider import CoreRadioSpider
-from typography import H1
-from utils import css, clickable, replace_multiple
+from typography import H2
+from utils import css, get_settings, replace_multiple
 import colors
 import time
 import requests
@@ -60,6 +60,7 @@ class Header(QWidget):
     def __init__(self, song=None):
         super(Header, self).__init__()
         self.song = song
+        self.settings = get_settings()
         self.layout = QGridLayout()
         self.layout.setMargin(0)
         self.layout.setContentsMargins(0, 0, 0, 25)
@@ -109,7 +110,7 @@ class Header(QWidget):
 
         total_length = int(res.headers.get('content-length'))
         current_length = 1
-        with open('/Users/jinkeming/NewMusic/{}'.format(filename), 'wb') as file:
+        with open('{}/{}'.format(self.settings['file_storage_location'], filename), 'wb') as file:
             for chunk in res.iter_content(chunk_size=1024):
                 if chunk:
                     current_length += len(chunk)
@@ -121,9 +122,10 @@ class Header(QWidget):
                         'Saving as: {}'.format(filename),
                     ])
                     self.download_text_label.setText(download_text)
-                    sys.stdout.write('\r{}% Downloading {} (Saving as: {})'.format(download_percentage, self.song['title'], filename))
+                    sys.stdout.write('\r{}% Downloading ==> {}'.format(download_percentage, self.song['title']))
                     file.write(chunk)
             sys.stdout.write('\n')
+            print('Saved as: {}/{}'.format(self.settings['file_storage_location'], filename))
             file.close()
         return True
 
@@ -209,8 +211,9 @@ class SongDetailPage(QWidget):
         self.page_layout.addWidget(Header(song=self.song))
 
         # Title
-        title = H1(self.song['title'])
+        title = H2(self.song['title'])
         title.setWordWrap(True)
+        title.setStyleSheet('padding-top: 20px;')
         self.page_layout.addWidget(title)
 
         # Inner container that contains Image + Songlist
@@ -241,7 +244,7 @@ class SongDetailPage(QWidget):
         try:
             response = requests.get(self.song['image'])
             self.image_content = response.content
-        except Exception as e:
+        except Exception:
             return True
         return True
 

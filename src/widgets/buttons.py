@@ -27,12 +27,14 @@ class IconButton(QWidget):
 
         self.setAttribute(Qt.WA_StyledBackground, True)
         self.setObjectName(u'button')
-        self.layout = QHBoxLayout(alignment=Qt.AlignLeft)
+        alignment = Qt.AlignLeft if icon is not None else Qt.AlignCenter
+        self.layout = QHBoxLayout(alignment=alignment)
 
         icon_label = QLabel()
         icon_label.setPixmap(QIcon(':/icons/24x24/{}'.format(icon)).pixmap(24))
 
-        self.layout.addWidget(icon_label)
+        if icon is not None:
+            self.layout.addWidget(icon_label)
         self.layout.addWidget(QLabel(text))
 
         self.setStyleSheet(css(

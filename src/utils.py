@@ -10,6 +10,9 @@ TODO
 
 from PySide2.QtCore import Signal, QEvent, QObject
 import re
+import json
+from constants import SETTINGS_FILE
+
 
 def clickable(widget):
     class Filter(QObject):
@@ -52,3 +55,7 @@ def replace_multiple(text, replacements):
     for regex, sub in replacements:
         result = re.sub(regex, sub, result)
     return result
+
+
+def get_settings():
+    return json.loads(open(SETTINGS_FILE, 'r').read())

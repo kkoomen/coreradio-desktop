@@ -56,7 +56,7 @@ class SongPreview(QWidget):
         try:
             response = requests.get(self.image)
             self.image_content = response.content
-        except Exception as e:
+        except Exception:
             return False
         return True
 

@@ -9,14 +9,11 @@ TODO
 
 
 from PySide2.QtCore import Qt
-from PySide2.QtGui import QIcon
-from PySide2.QtWidgets import QScrollArea, QVBoxLayout, QHBoxLayout, QWidget, QLabel
+from PySide2.QtWidgets import QScrollArea, QVBoxLayout, QWidget
 from widgets.home_feed import HomeFeed
 from widgets.buttons import IconButton
 from widgets.user_settings import UserSettings
 from signals import PageSignal
-from utils import clickable, css
-import colors
 
 class Sidebar(QWidget):
 

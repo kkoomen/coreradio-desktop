@@ -12,3 +12,4 @@ import os
 
 
 CONFIG_DIR = os.path.expanduser('~/.config/coreradio')
+SETTINGS_FILE = '{}/settings.json'.format(CONFIG_DIR)
