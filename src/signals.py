@@ -14,3 +14,8 @@ from PySide2.QtWidgets import QWidget
 class Page(QObject):
     changed = Signal(QWidget)
 PageSignal = Page()
+
+
+class UserSettings(QObject):
+    put = Signal(str, str)
+UserSettingsSignal = UserSettings()

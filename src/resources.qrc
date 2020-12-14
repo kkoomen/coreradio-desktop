@@ -3,5 +3,6 @@
     <file alias="home">icons/24x24/home.png</file>
     <file alias="download">icons/24x24/download.png</file>
     <file alias="magnify">icons/24x24/magnify.png</file>
+    <file alias="cog">icons/24x24/cog.png</file>
   </qresource>
 </RCC>

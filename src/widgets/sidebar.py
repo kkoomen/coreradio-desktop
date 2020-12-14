@@ -13,6 +13,7 @@ from PySide2.QtGui import QIcon
 from PySide2.QtWidgets import QScrollArea, QVBoxLayout, QHBoxLayout, QWidget, QLabel
 from widgets.home_feed import HomeFeed
 from widgets.buttons import IconButton
+from widgets.user_settings import UserSettings
 from signals import PageSignal
 from utils import clickable, css
 import colors
@@ -34,12 +35,13 @@ class Sidebar(QWidget):
 
         self.flow_layout = QVBoxLayout(widget, alignment=Qt.AlignTop)
 
-        self.register_menu_item('Home', 'home', HomeFeed)
+        self.register_menu_item('Home', icon='home', page=HomeFeed)
+        self.register_menu_item('Settings', icon='cog', page=UserSettings)
 
         self.layout.addWidget(self.scrollarea)
         self.setLayout(self.layout)
 
-    def register_menu_item(self, text, icon, page):
+    def register_menu_item(self, text, icon=None, page=None):
         btn = IconButton(icon=icon,
                          text=text,
                          on_click=lambda: PageSignal.changed.emit(page()))
