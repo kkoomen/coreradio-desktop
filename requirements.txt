@@ -1,3 +1,4 @@
+args==0.1.0
 beautifulsoup4==4.9.3
 bs4==0.0.1
 certifi==2020.12.5
@@ -17,3 +18,4 @@ snowballstemmer==2.0.0
 soupsieve==2.1
 tabulate==0.8.7
 urllib3==1.26.2
+uuid==1.30

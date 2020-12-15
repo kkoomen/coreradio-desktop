@@ -10,7 +10,7 @@ TODO
 
 from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QDialog, QFileDialog, QHBoxLayout, QLabel, QVBoxLayout, QWidget
-from utils import css
+from utils import css, get_settings
 from widgets.buttons import IconButton
 from signals import UserSettingsSignal
 from constants import SETTINGS_FILE
@@ -42,7 +42,7 @@ class FileStorageLocation(QWidget):
         file_field_container.setLayout(file_field_container_layout)
 
         self.file_label = QLabel(self.settings['file_storage_location'])
-        self.file_label.setStyleSheet(css(
+        self.file_label.setStyleSheet(
             '''
             QLabel {
                 padding: 20px;
@@ -50,7 +50,7 @@ class FileStorageLocation(QWidget):
                 border-radius: 8px;
             }
             '''
-        ))
+        )
         file_field_container_layout.addWidget(self.file_label)
 
         change_btn = IconButton(text='Change', on_click=self.select_location)
@@ -88,7 +88,7 @@ class UserSettings(QWidget):
             self.save(default_settings)
             return default_settings
 
-        return json.loads(open(SETTINGS_FILE, 'r').read())
+        return get_settings()
 
     def update(self, key, value):
         self.settings[key] = value

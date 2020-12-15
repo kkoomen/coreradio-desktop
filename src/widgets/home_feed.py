@@ -15,6 +15,7 @@ from widgets.flow_layout import FlowLayout
 from widgets.run_thread import RunThread
 from spider import CoreRadioSpider
 
+
 class HomeFeed(QWidget):
 
     def __init__(self):

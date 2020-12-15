@@ -10,6 +10,7 @@ TODO
 
 from PySide2 import QtCore, QtWidgets
 
+
 class FlowLayout(QtWidgets.QLayout):
     def __init__(self, parent=None, margin=-1, hspacing=-1, vspacing=-1):
         super(FlowLayout, self).__init__(parent)

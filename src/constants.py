@@ -13,3 +13,4 @@ import os
 
 CONFIG_DIR = os.path.expanduser('~/.config/coreradio')
 SETTINGS_FILE = '{}/settings.json'.format(CONFIG_DIR)
+DOWNLOAD_HISTORY_FILE = '{}/download_history.json'.format(CONFIG_DIR)

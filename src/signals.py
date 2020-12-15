@@ -19,3 +19,9 @@ PageSignal = Page()
 class UserSettings(QObject):
     put = Signal(str, str)
 UserSettingsSignal = UserSettings()
+
+
+class DownloadHistory(QObject):
+    put = Signal(dict)
+    progress = Signal(dict)
+DownloadHistorySignal = DownloadHistory()

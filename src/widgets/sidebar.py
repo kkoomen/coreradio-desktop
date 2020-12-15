@@ -11,9 +11,11 @@ TODO
 from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QScrollArea, QVBoxLayout, QWidget
 from widgets.home_feed import HomeFeed
-from widgets.buttons import IconButton
+from widgets.downloads import Downloads
 from widgets.user_settings import UserSettings
+from widgets.buttons import IconButton
 from signals import PageSignal
+
 
 class Sidebar(QWidget):
 
@@ -33,6 +35,7 @@ class Sidebar(QWidget):
         self.flow_layout = QVBoxLayout(widget, alignment=Qt.AlignTop)
 
         self.register_menu_item('Home', icon='home', page=HomeFeed)
+        self.register_menu_item('Downloads', icon='download', page=Downloads)
         self.register_menu_item('Settings', icon='cog', page=UserSettings)
 
         self.layout.addWidget(self.scrollarea)

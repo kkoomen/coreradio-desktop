@@ -12,6 +12,7 @@ Uses a Signal to alert the main thread of completion.
 
 from PySide2.QtCore import QThread, Signal
 
+
 class RunThread(QThread):
     finished = Signal(["QString"], [int])
 

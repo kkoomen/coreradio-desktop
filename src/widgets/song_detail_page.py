@@ -9,17 +9,21 @@ TODO
 
 
 from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QDialog, QGridLayout, QHBoxLayout, QLabel, QScrollArea, QSizePolicy, QVBoxLayout, QWidget
-from PySide2.QtGui import QFont, QImage, QPixmap
+from PySide2.QtWidgets import QGridLayout, QHBoxLayout, QLabel, QScrollArea, QSizePolicy, QVBoxLayout, QWidget
+from PySide2.QtGui import QImage, QPixmap
 from widgets.run_thread import RunThread
 from widgets.buttons import IconButton
 from spider import CoreRadioSpider
 from typography import H2
-from utils import css, get_settings, replace_multiple
+from utils import css, get_settings, replace_multiple, get_download_history
+from signals import DownloadHistorySignal
+from constants import DOWNLOAD_HISTORY_FILE
 import colors
 import time
 import requests
-import sys
+import json
+from uuid import uuid4
+from datetime import datetime
 
 
 class Song(QWidget):
@@ -104,78 +108,62 @@ class Header(QWidget):
 
         self.setLayout(self.layout)
 
-    def download_song(self, item, filename):
-        res = requests.get(item['url'], stream=True)
-        print('GET {}'.format(item['url']))
-
-        total_length = int(res.headers.get('content-length'))
-        current_length = 1
-        with open('{}/{}'.format(self.settings['file_storage_location'], filename), 'wb') as file:
-            for chunk in res.iter_content(chunk_size=1024):
-                if chunk:
-                    current_length += len(chunk)
-                    download_percentage = int(100 / total_length * current_length)
-                    download_text = '\n'.join([
-                        'Downloaded: {}%'.format(download_percentage),
-                        'Title: {}'.format(self.song['title']),
-                        'Quality: {}'.format(item['label']),
-                        'Saving as: {}'.format(filename),
-                    ])
-                    self.download_text_label.setText(download_text)
-                    sys.stdout.write('\r{}% Downloading ==> {}'.format(download_percentage, self.song['title']))
-                    file.write(chunk)
-            sys.stdout.write('\n')
-            print('Saved as: {}/{}'.format(self.settings['file_storage_location'], filename))
-            file.close()
-        return True
-
-
-    def on_download_song_complete(self):
-        self.download_dialog.setWindowFlags(
-            Qt.WindowCloseButtonHint |
-            Qt.Window |
-            Qt.CustomizeWindowHint |
-            Qt.WindowTitleHint |
-            Qt.WindowMinimizeButtonHint
-        )
-        self.download_dialog.show()
-
-    def download(self, item):
+    def download(self, link):
         def closure():
-            self.download_dialog = QDialog()
-            self.download_dialog.setWindowFlags(
-                Qt.Window |
-                Qt.CustomizeWindowHint |
-                Qt.WindowTitleHint |
-                Qt.WindowMinimizeButtonHint
-            )
-            self.download_dialog.setModal(True)
-            self.download_dialog_layout = QVBoxLayout()
-            self.download_text_label = QLabel()
-            font = QFont()
-            font.setKerning(False)
-            self.download_text_label.setFont(font)
-            self.download_dialog_layout.addWidget(self.download_text_label)
-            self.download_dialog.setLayout(self.download_dialog_layout)
-
             filename = replace_multiple(self.song['title'], (
                 (r'\s+', '_'),
                 (r'[^\w]+', ''),
                 (r'_+', '_'),
             )).lower()
             filename = '{}.tar'.format(filename)
-
-            download_text = '\n'.join([
-                'Downloaded: 0%',
-                'Title: {}'.format(self.song['title']),
-                'Quality: {}'.format(item['label']),
-                'Saving as: {}'.format(filename),
-            ])
-            self.download_text_label.setText(download_text)
-
-            self.download_thread = RunThread(self.download_song, self.on_download_song_complete, item, filename)
-            self.download_dialog.exec()
+            self.start_download_thread({
+                'id': str(uuid4()),
+                'url': link['url'],
+                'title': self.song['title'],
+                'quality': link['label'],
+                'filename': filename,
+                'location': self.settings['file_storage_location'],
+                'progress': 0,
+                'created': datetime.now().isoformat()
+            })
         return closure
+
+    def start_download_thread(self, item):
+        print('Starting download thread: {}'.format(item['id']))
+        thread_id = 'download_thread_{}'.format(item['id'])
+        history = get_download_history()
+        history.append(item)
+        with open(DOWNLOAD_HISTORY_FILE, 'w') as f:
+            json.dump(history, f)
+            f.close()
+        setattr(self, thread_id, RunThread(self.download_song, self.on_download_song_complete, item))
+
+    def download_song(self, item):
+        res = requests.get(item['url'], stream=True)
+        print('GET {}'.format(item['url']))
+
+        total_length = int(res.headers.get('content-length'))
+        current_length = 1
+        progress = 0
+        prev_progress = 0
+        with open('{}/{}'.format(self.settings['file_storage_location'], item['filename']), 'wb') as file:
+            for chunk in res.iter_content(chunk_size=1024):
+                if chunk:
+                    current_length += len(chunk)
+                    progress = int(100 / total_length * current_length)
+                    if progress != prev_progress:
+                        prev_progress = progress
+                        DownloadHistorySignal.progress.emit({
+                            **item,
+                            'progress': progress
+                        })
+                    file.write(chunk)
+            print('Download complete, saved as: {}/{}'.format(self.settings['file_storage_location'], item['filename']))
+            file.close()
+        return True
+
+    def on_download_song_complete(self):
+        pass
 
 
 class SongDetailPage(QWidget):

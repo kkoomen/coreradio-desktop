@@ -11,7 +11,7 @@ TODO
 from PySide2.QtCore import Signal, QEvent, QObject
 import re
 import json
-from constants import SETTINGS_FILE
+from constants import SETTINGS_FILE, DOWNLOAD_HISTORY_FILE
 
 
 def clickable(widget):
@@ -58,4 +58,14 @@ def replace_multiple(text, replacements):
 
 
 def get_settings():
-    return json.loads(open(SETTINGS_FILE, 'r').read())
+    try:
+        return json.loads(open(SETTINGS_FILE, 'r').read())
+    except Exception as e:
+        return {}
+
+
+def get_download_history():
+    try:
+        return json.loads(open(DOWNLOAD_HISTORY_FILE, 'r').read())
+    except Exception as e:
+        return []

@@ -12,12 +12,15 @@ from PySide2.QtCore import Slot
 from PySide2.QtWidgets import QWidget, QVBoxLayout
 from widgets.home_feed import HomeFeed
 from signals import PageSignal
+from utils import get_settings
+
 
 class PageContent(QWidget):
 
     def __init__(self):
         super(PageContent, self).__init__()
         PageSignal.changed.connect(self.on_change_page)
+        self.settings = get_settings()
 
         self.layout = QVBoxLayout()
         self.layout.setMargin(0)
