@@ -17,11 +17,12 @@ from spider import CoreRadioSpider
 from typography import H2
 from utils import css, get_settings, replace_multiple, get_download_history
 from signals import DownloadHistorySignal
-from constants import DOWNLOAD_HISTORY_FILE
+from constants import DOWNLOAD_HISTORY_FILE, ARTWORK_DIR
 import colors
 import time
 import requests
 import json
+import os
 from uuid import uuid4
 from datetime import datetime
 
@@ -115,13 +116,15 @@ class Header(QWidget):
                 (r'[^\w]+', ''),
                 (r'_+', '_'),
             )).lower()
-            filename = '{}.tar'.format(filename)
             self.start_download_thread({
                 'id': str(uuid4()),
                 'url': link['url'],
                 'title': self.song['title'],
+                'artwork_local_path': '{}/{}.jpg'.format(ARTWORK_DIR, filename),
+                'artwork_url': self.song['artwork'],
                 'quality': link['label'],
-                'filename': filename,
+                'filename': '{}.tar'.format(filename),
+                'basename': filename,
                 'location': self.settings['file_storage_location'],
                 'progress': 0,
                 'created': datetime.now().isoformat()
@@ -139,6 +142,14 @@ class Header(QWidget):
         setattr(self, thread_id, RunThread(self.download_song, self.on_download_song_complete, item))
 
     def download_song(self, item):
+        # Download artwork
+        if not os.path.exists(item['artwork_local_path']):
+            res = requests.get(item['artwork_url'])
+            with open(item['artwork_local_path'], 'wb') as f:
+                f.write(res.content)
+                f.close()
+
+        # Download song
         res = requests.get(item['url'], stream=True)
         print('GET {}'.format(item['url']))
 
@@ -215,9 +226,9 @@ class SongDetailPage(QWidget):
 
         # Image
         self.artwork_label = QLabel()
-        self.artwork_label.setStyleSheet('background-color: #252525;')
-        self.artwork_label.setMinimumWidth(self.artwork_size)
-        self.artwork_label.setMinimumHeight(self.artwork_size)
+        self.artwork_label.setStyleSheet(css('background-color: {{color}};', color=colors.PLACEHOLDER_COLOR))
+        self.artwork_label.setFixedWidth(self.artwork_size)
+        self.artwork_label.setFixedHeight(self.artwork_size)
         inner_container_layout.addWidget(self.artwork_label, alignment=Qt.AlignTop)
         self.get_artwork_thread = RunThread(self.fetch_artwork, self.on_artwork_loaded)
 

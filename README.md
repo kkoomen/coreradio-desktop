@@ -1,6 +1,7 @@
 # Coreradio Desktop
 
-![preview](./image.jpg)
+![home](./home.jpg)
+![downloads](./downloads.jpg)
 
 # Installation
 

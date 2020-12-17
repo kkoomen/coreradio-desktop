@@ -14,9 +14,10 @@ from PySide2.QtGui import QImage, QPixmap
 from widgets.run_thread import RunThread
 from widgets.song_detail_page import SongDetailPage
 from signals import PageSignal
-from utils import clickable
+from utils import clickable, css
 import time
 import requests
+import colors
 
 class SongPreview(QWidget):
 
@@ -34,9 +35,9 @@ class SongPreview(QWidget):
         self.layout = QVBoxLayout()
 
         self.artwork_label = QLabel()
-        self.artwork_label.setStyleSheet('background-color: #252525;')
-        self.artwork_label.setMinimumWidth(self.artwork_size)
-        self.artwork_label.setMinimumHeight(self.artwork_size)
+        self.artwork_label.setStyleSheet(css('background-color: {{color}};', color=colors.PLACEHOLDER_COLOR))
+        self.artwork_label.setFixedWidth(self.artwork_size)
+        self.artwork_label.setFixedHeight(self.artwork_size)
         clickable(self.artwork_label).connect(self.on_click)
         self.layout.addWidget(self.artwork_label)
 

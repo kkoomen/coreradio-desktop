@@ -10,10 +10,12 @@ TODO
 
 from PySide2.QtCore import Qt, Slot
 from PySide2.QtWidgets import QScrollArea, QVBoxLayout, QWidget, QLabel, QHBoxLayout
-from utils import get_download_history
+from PySide2.QtGui import QPixmap, QFont
+from utils import get_download_history, css, timeago
 from widgets.buttons import IconButton
 from signals import DownloadHistorySignal
 from constants import DOWNLOAD_HISTORY_FILE
+import colors
 import json
 import os
 
@@ -23,6 +25,7 @@ class DownloadItem(QWidget):
     def __init__(self, item=None):
         super(DownloadItem, self).__init__()
         DownloadHistorySignal.progress.connect(self.update_progress)
+        self.artwork_size = 80
         self.item = item
         self.layout = QVBoxLayout()
         self.layout.setMargin(0)
@@ -32,16 +35,18 @@ class DownloadItem(QWidget):
         item_container_layout.setMargin(0)
         item_container.setLayout(item_container_layout)
 
-        self.item_label = QLabel(self.getText())
-        self.item_label.setStyleSheet(
-            '''
-            QLabel {
-                padding: 20px;
-                background: #444;
-                border-radius: 8px;
-            }
-            '''
-        )
+        self.artwork_label = QLabel(alignment=Qt.AlignLeft)
+        self.artwork_label.setStyleSheet(css('background-color: {{color}};', color=colors.PLACEHOLDER_COLOR))
+        self.artwork_label.setFixedWidth(self.artwork_size)
+        self.artwork_label.setFixedHeight(self.artwork_size)
+        item_container_layout.addWidget(self.artwork_label)
+        self.render_artwork()
+
+        self.item_label = QLabel(self.get_text())
+        font = QFont()
+        font.setKerning(False)
+        self.item_label.setFont(font)
+        self.item_label.setStyleSheet('padding: 0 10px;')
         item_container_layout.addWidget(self.item_label)
 
         delete_btn = IconButton(text='Delete', on_click=self.delete)
@@ -55,14 +60,35 @@ class DownloadItem(QWidget):
 
         self.setLayout(self.layout)
 
-    def getText(self):
-        return '{}% {}'.format(self.item['progress'], self.item['title'])
+    def render_artwork(self):
+        if os.path.exists(self.item['artwork_local_path']):
+            picture = QPixmap(self.item['artwork_local_path'])
+            picture = picture.scaled(self.artwork_size, self.artwork_size, Qt.KeepAspectRatio)
+            self.artwork_label.setPixmap(picture)
+
+    def get_text(self):
+        downloadColor = '#FF9800' if self.item['progress'] < 100 else '#4CAF50';
+        return css(
+            '<span style="color: {{downloadColor}};">({}%)</span> {}<br/><span style="color:#888;"><br/>Saved as {}/{}<br/>{} • {}</span>',
+            downloadColor=downloadColor
+        ).format(
+            self.item['progress'],
+            self.item['title'],
+            self.item['location'],
+            self.item['filename'],
+            self.item['quality'],
+            timeago(self.item['created'])
+        )
 
     def delete(self):
         filepath ='{}/{}'.format(self.item['location'], self.item['filename'])
         if os.path.exists(filepath):
             print('Deleting downloaded file: {}'.format(filepath))
             os.remove(filepath)
+
+        if os.path.exists(self.item['artwork_local_path']):
+            print('Deleting artwork in {}'.format(self.item['artwork_local_path']))
+            os.remove(self.item['artwork_local_path'])
 
         history = get_download_history()
         filtered_history = [item for item in history if item['id'] != self.item['id']]
@@ -75,7 +101,8 @@ class DownloadItem(QWidget):
     def update_progress(self, item):
         if self.item['id'] == item['id']:
             self.item = item
-            self.item_label.setText(self.getText())
+            self.item_label.setText(self.get_text())
+            self.render_artwork()
 
             history = get_download_history()
             for index, download_item in enumerate(history):

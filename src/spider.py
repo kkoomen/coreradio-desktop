@@ -78,7 +78,7 @@ class CoreRadioSpider:
                         'released': released
                     })
             else:
-                songname = re.search(r'[^-]+ - ([\w\s]+) .*', result['title'])
+                songname = re.search(r'[^-]+ - ([\w\s]+).*', result['title'])
                 result['songlist'].append({
                     'name': songname.group(1).strip() if songname else result['title'],
                     'released': True

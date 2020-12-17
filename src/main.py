@@ -11,14 +11,18 @@ import sys
 from PySide2.QtWidgets import QApplication, QHBoxLayout, QWidget
 from widgets.sidebar import Sidebar
 from widgets.page_content import PageContent
-from constants import CONFIG_DIR
-import resources_rc
+from constants import CONFIG_DIR, ARTWORK_DIR
 import os
+import resources_rc
 
 
 if not os.path.exists(CONFIG_DIR):
     print('Creating new config directory at {}'.format(CONFIG_DIR))
     os.mkdir(CONFIG_DIR)
+
+if not os.path.exists(ARTWORK_DIR):
+    print('Creating new artwork directory at {}'.format(ARTWORK_DIR))
+    os.mkdir(ARTWORK_DIR)
 
 
 class MainWindow(QWidget):
