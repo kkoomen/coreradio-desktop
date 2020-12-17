@@ -172,8 +172,8 @@ class SongDetailPage(QWidget):
         super(SongDetailPage, self).__init__()
         self.url = url
         self.loading = False
-        self.image_content = None
-        self.image_size = 400
+        self.artwork_content = None
+        self.artwork_size = 400
         self.song = None
 
         self.layout = QVBoxLayout()
@@ -214,38 +214,38 @@ class SongDetailPage(QWidget):
         self.page_layout.addWidget(inner_container)
 
         # Image
-        self.image_label = QLabel()
-        self.image_label.setStyleSheet('background-color: #252525;')
-        self.image_label.setMinimumWidth(self.image_size)
-        self.image_label.setMinimumHeight(self.image_size)
-        inner_container_layout.addWidget(self.image_label, alignment=Qt.AlignTop)
-        self.get_image_thread = RunThread(self.fetch_image, self.on_image_loaded)
+        self.artwork_label = QLabel()
+        self.artwork_label.setStyleSheet('background-color: #252525;')
+        self.artwork_label.setMinimumWidth(self.artwork_size)
+        self.artwork_label.setMinimumHeight(self.artwork_size)
+        inner_container_layout.addWidget(self.artwork_label, alignment=Qt.AlignTop)
+        self.get_artwork_thread = RunThread(self.fetch_artwork, self.on_artwork_loaded)
 
         # Songlist
         inner_container_layout.addWidget(
             Songlist(songlist=self.song['songlist']),
             alignment=Qt.AlignTop)
 
-    def fetch_image(self):
+    def fetch_artwork(self):
         time.sleep(1)
-        print('GET {}'.format(self.song['image']))
+        print('GET {}'.format(self.song['artwork']))
         try:
-            response = requests.get(self.song['image'])
-            self.image_content = response.content
+            response = requests.get(self.song['artwork'])
+            self.artwork_content = response.content
         except Exception:
             return True
         return True
 
-    def on_image_loaded(self):
-        if self.image_content:
+    def on_artwork_loaded(self):
+        if self.artwork_content:
             imgWidget = QImage()
-            imgWidget.loadFromData(self.image_content)
+            imgWidget.loadFromData(self.artwork_content)
             picture = QPixmap(imgWidget)
-            picture = picture.scaled(self.image_size, self.image_size, Qt.KeepAspectRatio)
-            self.image_label.setPixmap(picture)
-            print('[DONE] GET {}'.format(self.song['image']))
+            picture = picture.scaled(self.artwork_size, self.artwork_size, Qt.KeepAspectRatio)
+            self.artwork_label.setPixmap(picture)
+            print('[DONE] GET {}'.format(self.song['artwork']))
         else:
-            print('[FAILED] GET {}'.format(self.song['image']))
+            print('[FAILED] GET {}'.format(self.song['artwork']))
 
     def get_song_info(self):
         self.loading = True

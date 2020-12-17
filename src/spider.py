@@ -34,7 +34,7 @@ class CoreRadioSpider:
             for item in container.select('.tcarusel-item'):
                 image_path = item.select('.tcarusel-item-image img')[0].get('src')
                 feed.append({
-                    'image': image_path if not 'no_image' in image_path else None,
+                    'artwork': image_path if not 'no_image' in image_path else None,
                     'title': str(item.select('.tcarusel-item-title a')[0].string).strip(),
                     'href': item.select('.tcarusel-item-title a')[0].get('href'),
                 })
@@ -51,7 +51,7 @@ class CoreRadioSpider:
             script_tag = container.select('[type="application/ld+json"]')
             inline_info = json.loads(str(script_tag[0].string))
             result['genre'] = inline_info['description']['genre']
-            result['image'] = inline_info['image']
+            result['artwork'] = inline_info['image']
             result['title'] = inline_info['name']
 
             # Get the song list info

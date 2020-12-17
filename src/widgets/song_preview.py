@@ -22,23 +22,23 @@ class SongPreview(QWidget):
 
     def __init__(self, **kwargs):
         super(SongPreview, self).__init__()
-        self.image_content = None
-        self.image_size = 300
-        self.image = kwargs['image']
+        self.artwork_content = None
+        self.artwork_size = 300
+        self.artwork = kwargs['artwork']
         self.title = kwargs['title']
         self.url = kwargs['url']
 
-        if self.image is not None:
-            self.thread = RunThread(self.fetch_image, self.on_image_loaded)
+        if self.artwork is not None:
+            self.thread = RunThread(self.fetch_artwork, self.on_artwork_loaded)
 
         self.layout = QVBoxLayout()
 
-        self.image_label = QLabel()
-        self.image_label.setStyleSheet('background-color: #252525;')
-        self.image_label.setMinimumWidth(self.image_size)
-        self.image_label.setMinimumHeight(self.image_size)
-        clickable(self.image_label).connect(self.on_click)
-        self.layout.addWidget(self.image_label)
+        self.artwork_label = QLabel()
+        self.artwork_label.setStyleSheet('background-color: #252525;')
+        self.artwork_label.setMinimumWidth(self.artwork_size)
+        self.artwork_label.setMinimumHeight(self.artwork_size)
+        clickable(self.artwork_label).connect(self.on_click)
+        self.layout.addWidget(self.artwork_label)
 
         title = QLabel(self.title)
         title.setWordWrap(True)
@@ -50,23 +50,23 @@ class SongPreview(QWidget):
     def on_click(self):
         PageSignal.changed.emit(SongDetailPage(url=self.url))
 
-    def fetch_image(self):
+    def fetch_artwork(self):
         time.sleep(1)
-        print('GET {}'.format(self.image))
+        print('GET {}'.format(self.artwork))
         try:
-            response = requests.get(self.image)
-            self.image_content = response.content
+            response = requests.get(self.artwork)
+            self.artwork_content = response.content
         except Exception:
             return False
         return True
 
-    def on_image_loaded(self):
-        if self.image_content:
+    def on_artwork_loaded(self):
+        if self.artwork_content:
             imgWidget = QImage()
-            imgWidget.loadFromData(self.image_content)
+            imgWidget.loadFromData(self.artwork_content)
             picture = QPixmap(imgWidget)
-            picture = picture.scaled(self.image_size, self.image_size, Qt.KeepAspectRatio)
-            self.image_label.setPixmap(picture)
-            print('[DONE] GET {}'.format(self.image))
+            picture = picture.scaled(self.artwork_size, self.artwork_size, Qt.KeepAspectRatio)
+            self.artwork_label.setPixmap(picture)
+            print('[DONE] GET {}'.format(self.artwork))
         else:
-            print('[FAILED] GET {}'.format(self.image))
+            print('[FAILED] GET {}'.format(self.artwork))

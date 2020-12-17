@@ -65,7 +65,7 @@ class HomeFeed(QWidget):
     def on_feed_receive(self):
         if len(self.feed) > 0:
             for item in self.feed:
-                preview_widget = SongPreview(image=item['image'],
+                preview_widget = SongPreview(artwork=item['artwork'],
                                              title=item['title'],
                                              url=item['href'])
                 self.flow_layout.addWidget(preview_widget)
