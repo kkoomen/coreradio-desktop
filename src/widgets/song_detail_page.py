@@ -15,7 +15,7 @@ from widgets.run_thread import RunThread
 from widgets.buttons import IconButton
 from spider import CoreRadioSpider
 from typography import H2
-from utils import css, get_settings, replace_multiple, get_download_history
+from utils import css, get_settings, replace_multiple, get_download_history, update_download_history
 from signals import DownloadHistorySignal
 from constants import DOWNLOAD_HISTORY_FILE, ARTWORK_DIR
 import colors
@@ -127,7 +127,7 @@ class Header(QWidget):
                 'basename': filename,
                 'location': self.settings['file_storage_location'],
                 'progress': 0,
-                'created': datetime.now().isoformat()
+                'created': int(datetime.now().strftime('%s'))
             })
         return closure
 
@@ -164,10 +164,9 @@ class Header(QWidget):
                     progress = int(100 / total_length * current_length)
                     if progress != prev_progress:
                         prev_progress = progress
-                        DownloadHistorySignal.progress.emit({
-                            **item,
-                            'progress': progress
-                        })
+                        new_item = { **item, 'progress': progress }
+                        DownloadHistorySignal.progress.emit(new_item)
+                        update_download_history(new_item)
                     file.write(chunk)
             print('Download complete, saved as: {}/{}'.format(self.settings['file_storage_location'], item['filename']))
             file.close()

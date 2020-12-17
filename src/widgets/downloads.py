@@ -104,20 +104,14 @@ class DownloadItem(QWidget):
             self.item_label.setText(self.get_text())
             self.render_artwork()
 
-            history = get_download_history()
-            for index, download_item in enumerate(history):
-                if download_item['id'] == item['id']:
-                    history[index] = item
-            with open(DOWNLOAD_HISTORY_FILE, 'w') as f:
-                json.dump(history, f)
-                f.close()
-
 
 class Downloads(QWidget):
 
     def __init__(self):
         super(Downloads, self).__init__()
         self.history = get_download_history()
+        self.history.reverse()
+
         self.layout = QVBoxLayout()
         self.layout.setMargin(0)
 

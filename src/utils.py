@@ -72,6 +72,17 @@ def get_download_history():
     except Exception as e:
         return []
 
+
+def update_download_history(item):
+    history = get_download_history()
+    for index, download_item in enumerate(history):
+        if download_item['id'] == item['id']:
+            history[index] = item
+    with open(DOWNLOAD_HISTORY_FILE, 'w') as f:
+        json.dump(history, f)
+        f.close()
+
+
 def timeago(time=False):
     """
     Get a datetime object or a int() Epoch timestamp and return a
@@ -79,13 +90,11 @@ def timeago(time=False):
     'just now', etc
     """
     now = datetime.now()
-    if type(time) is str:
-        diff = now - datetime.strptime(time, "%Y-%m-%dT%H:%M:%S.%f")
-    elif type(time) is int:
+    if type(time) is int:
         diff = now - datetime.fromtimestamp(time)
     elif isinstance(time,datetime):
         diff = now - time
-    elif not time:
+    else:
         diff = now - now
     second_diff = diff.seconds
     day_diff = diff.days
