@@ -25,8 +25,8 @@ class Sidebar(QWidget):
 
     def __init__(self):
         super(Sidebar, self).__init__()
-        DownloadHistorySignal.put.connect(self.update_notification_amount)
-        DownloadHistorySignal.progress.connect(self.update_notification_amount)
+        DownloadHistorySignal.put.connect(self.render_total_downloads)
+        DownloadHistorySignal.progress.connect(self.render_total_downloads)
         self.sidebar_width = 300
         self.setStyleSheet('background: rgba(0, 0, 0, 0.05);');
         self.setFixedWidth(self.sidebar_width)
@@ -44,12 +44,13 @@ class Sidebar(QWidget):
         self.register_menu_item('Home', icon='home', page=HomeFeed)
         self.register_menu_item('Downloads', icon='download', page=Downloads)
         self.register_menu_item('Settings', icon='cog', page=UserSettings)
+        self.add_total_downloads_widget()
         self.render_total_downloads()
 
         self.layout.addWidget(self.scrollarea)
         self.setLayout(self.layout)
 
-    def render_total_downloads(self):
+    def add_total_downloads_widget(self):
         total_downloads_label_size = 19
         self.total_downloads_label = QLabel('1', self.downloads_menu_item)
         self.total_downloads_label.setAlignment(Qt.AlignCenter)
@@ -70,7 +71,7 @@ class Sidebar(QWidget):
         ))
 
     @Slot(dict)
-    def update_notification_amount(self):
+    def render_total_downloads(self):
         history = get_download_history()
         in_progress_items_length = len([item for item in history if item['progress'] != 100])
         self.total_downloads_label.setText(str(in_progress_items_length))

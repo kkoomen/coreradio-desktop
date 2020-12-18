@@ -119,6 +119,9 @@ class DownloadItem(QWidget):
             self.item_label.setText(self.get_text())
             self.render_artwork()
 
+            if self.item['progress'] == 100:
+                self.retry_btn.hide()
+
 
 class Downloads(QWidget):
 
