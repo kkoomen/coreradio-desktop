@@ -15,7 +15,7 @@ from widgets.run_thread import RunThread
 from widgets.buttons import IconButton
 from spider import CoreRadioSpider
 from typography import H2
-from utils import css, get_settings, replace_multiple, get_download_history, update_download_history
+from utils import css, get_settings, replace_multiple, get_download_history, update_download_history, download_song
 from signals import DownloadHistorySignal
 from constants import DOWNLOAD_HISTORY_FILE, ARTWORK_DIR
 import colors
@@ -139,47 +139,7 @@ class Header(QWidget):
         with open(DOWNLOAD_HISTORY_FILE, 'w') as f:
             json.dump(history, f)
             f.close()
-        setattr(self, thread_id, RunThread(self.download_song, self.on_download_song_complete, item))
-
-    def download_song(self, item):
-        new_item = { **item, 'progress': 0 }
-        update_download_history(new_item)
-        DownloadHistorySignal.put.emit(new_item)
-
-        # Download artwork
-        if not os.path.exists(item['artwork_local_path']):
-            print('GET {}'.format(item['artwork_url']))
-            res = requests.get(item['artwork_url'])
-            print('[DONE] {}'.format(item['artwork_url']))
-            with open(item['artwork_local_path'], 'wb') as f:
-                f.write(res.content)
-                f.close()
-
-        # Download song
-        res = requests.get(item['url'], stream=True)
-        print('GET {}'.format(item['url']))
-
-        total_length = int(res.headers.get('content-length'))
-        current_length = 1
-        progress = 0
-        prev_progress = 0
-        with open('{}/{}'.format(self.settings['file_storage_location'], item['filename']), 'wb') as file:
-            for chunk in res.iter_content(chunk_size=1024):
-                if chunk:
-                    current_length += len(chunk)
-                    progress = int(100 / total_length * current_length)
-                    if progress != prev_progress:
-                        prev_progress = progress
-                        new_item = { **item, 'progress': progress }
-                        update_download_history(new_item)
-                        DownloadHistorySignal.progress.emit(new_item)
-                    file.write(chunk)
-            print('Download complete, saved as: {}/{}'.format(self.settings['file_storage_location'], item['filename']))
-            file.close()
-        return True
-
-    def on_download_song_complete(self):
-        pass
+        setattr(self, thread_id, RunThread(download_song, None, item))
 
 
 class SongDetailPage(QWidget):

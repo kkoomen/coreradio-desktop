@@ -11,7 +11,8 @@ TODO
 from PySide2.QtCore import Qt, Slot
 from PySide2.QtWidgets import QScrollArea, QVBoxLayout, QWidget, QLabel, QHBoxLayout
 from PySide2.QtGui import QPixmap, QFont
-from utils import get_download_history, css, timeago
+from utils import get_download_history, css, timeago, download_song
+from widgets.run_thread import RunThread
 from widgets.buttons import IconButton
 from signals import DownloadHistorySignal
 from constants import DOWNLOAD_HISTORY_FILE
@@ -24,7 +25,8 @@ class DownloadItem(QWidget):
 
     def __init__(self, item=None):
         super(DownloadItem, self).__init__()
-        DownloadHistorySignal.progress.connect(self.update_progress)
+        DownloadHistorySignal.put.connect(self.update)
+        DownloadHistorySignal.progress.connect(self.update)
         self.artwork_size = 80
         self.item = item
         self.layout = QVBoxLayout()
@@ -49,8 +51,17 @@ class DownloadItem(QWidget):
         self.item_label.setStyleSheet('padding: 0 10px;')
         item_container_layout.addWidget(self.item_label)
 
+        self.retry_btn = IconButton(text='Retry', on_click=self.retry)
+        self.retry_btn.setFixedHeight(40)
+        self.retry_btn.setFixedWidth(60)
+        item_container_layout.addWidget(self.retry_btn)
+        if self.item['progress'] == 100:
+            self.retry_btn.hide()
+
+
         delete_btn = IconButton(text='Delete', on_click=self.delete)
-        delete_btn.setFixedWidth(100)
+        delete_btn.setFixedHeight(40)
+        delete_btn.setFixedWidth(70)
         item_container_layout.addWidget(delete_btn)
 
         self.layout.addWidget(item_container)
@@ -59,6 +70,10 @@ class DownloadItem(QWidget):
         self.layout.addWidget(self.progress_label)
 
         self.setLayout(self.layout)
+
+    def retry(self):
+        thread_id = 'download_thread_{}'.format(self.item['id'])
+        setattr(self, thread_id, RunThread(download_song, None, self.item))
 
     def render_artwork(self):
         if os.path.exists(self.item['artwork_local_path']):
@@ -98,7 +113,7 @@ class DownloadItem(QWidget):
             self.setParent(None)
 
     @Slot(dict)
-    def update_progress(self, item):
+    def update(self, item):
         if self.item['id'] == item['id']:
             self.item = item
             self.item_label.setText(self.get_text())

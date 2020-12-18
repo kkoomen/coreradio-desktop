@@ -10,10 +10,13 @@ TODO
 
 from PySide2.QtCore import Signal, QEvent, QObject
 from constants import SETTINGS_FILE, DOWNLOAD_HISTORY_FILE
+from signals import DownloadHistorySignal
 from datetime import datetime
 import re
 import json
 import math
+import os
+import requests
 
 
 def clickable(widget):
@@ -124,3 +127,43 @@ def timeago(time=False):
     if day_diff < 365:
         return str(math.floor(day_diff / 30)) + " months ago"
     return str(math.floor(day_diff / 365)) + " years ago"
+
+
+def download_song(item):
+    settings = get_settings()
+
+    new_item = { **item, 'progress': 0 }
+    update_download_history(new_item)
+    DownloadHistorySignal.put.emit(new_item)
+
+    # Download artwork
+    if not os.path.exists(item['artwork_local_path']):
+        print('GET {}'.format(item['artwork_url']))
+        res = requests.get(item['artwork_url'])
+        print('[DONE] {}'.format(item['artwork_url']))
+        with open(item['artwork_local_path'], 'wb') as f:
+            f.write(res.content)
+            f.close()
+
+    # Download song
+    res = requests.get(item['url'], stream=True)
+    print('GET {}'.format(item['url']))
+
+    total_length = int(res.headers.get('content-length'))
+    current_length = 1
+    progress = 0
+    prev_progress = 0
+    with open('{}/{}'.format(settings['file_storage_location'], item['filename']), 'wb') as file:
+        for chunk in res.iter_content(chunk_size=1024):
+            if chunk:
+                current_length += len(chunk)
+                progress = int(100 / total_length * current_length)
+                if progress != prev_progress:
+                    prev_progress = progress
+                    new_item = { **item, 'progress': progress }
+                    update_download_history(new_item)
+                    DownloadHistorySignal.progress.emit(new_item)
+                file.write(chunk)
+        print('Download complete, saved as: {}/{}'.format(settings['file_storage_location'], item['filename']))
+        file.close()
+    return True

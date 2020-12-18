@@ -21,8 +21,11 @@ class RunThread(QThread):
         self.args = args
         self.kwargs = kwargs
         self.func = func
-        self.finished.connect(on_finish)
-        self.finished[int].connect(on_finish)
+        if on_finish is not None:
+            self.finished.connect(on_finish)
+            self.finished[int].connect(on_finish)
+        else:
+            self.finished = None
         self.start()
 
     def run(self):
@@ -32,7 +35,8 @@ class RunThread(QThread):
             print('Could not run thread function: {}'.format(err))
             result = err
         finally:
-            if isinstance(result, int):
-                self.finished[int].emit(result)
-            else:
-                self.finished.emit(str(result))
+            if self.finished is not None:
+                if isinstance(result, int):
+                    self.finished[int].emit(result)
+                else:
+                    self.finished.emit(str(result))
