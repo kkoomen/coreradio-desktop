@@ -142,9 +142,15 @@ class Header(QWidget):
         setattr(self, thread_id, RunThread(self.download_song, self.on_download_song_complete, item))
 
     def download_song(self, item):
+        new_item = { **item, 'progress': 0 }
+        update_download_history(new_item)
+        DownloadHistorySignal.put.emit(new_item)
+
         # Download artwork
         if not os.path.exists(item['artwork_local_path']):
+            print('GET {}'.format(item['artwork_url']))
             res = requests.get(item['artwork_url'])
+            print('[DONE] {}'.format(item['artwork_url']))
             with open(item['artwork_local_path'], 'wb') as f:
                 f.write(res.content)
                 f.close()
@@ -165,8 +171,8 @@ class Header(QWidget):
                     if progress != prev_progress:
                         prev_progress = progress
                         new_item = { **item, 'progress': progress }
-                        DownloadHistorySignal.progress.emit(new_item)
                         update_download_history(new_item)
+                        DownloadHistorySignal.progress.emit(new_item)
                     file.write(chunk)
             print('Download complete, saved as: {}/{}'.format(self.settings['file_storage_location'], item['filename']))
             file.close()

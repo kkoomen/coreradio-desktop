@@ -9,10 +9,10 @@ TODO
 
 
 from PySide2.QtCore import Signal, QEvent, QObject
-import re
-import json
 from constants import SETTINGS_FILE, DOWNLOAD_HISTORY_FILE
 from datetime import datetime
+import re
+import json
 import math
 
 
