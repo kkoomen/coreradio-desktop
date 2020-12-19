@@ -11,9 +11,11 @@ import sys
 from PySide2.QtWidgets import QApplication, QHBoxLayout, QWidget
 from widgets.sidebar import Sidebar
 from widgets.page_content import PageContent
-from constants import CONFIG_DIR, ARTWORK_DIR
+from constants import CONFIG_DIR, ARTWORK_DIR, DOWNLOAD_HISTORY_FILE
+from utils import get_download_history
 import os
 import resources_rc
+import json
 
 
 if not os.path.exists(CONFIG_DIR):
@@ -23,6 +25,16 @@ if not os.path.exists(CONFIG_DIR):
 if not os.path.exists(ARTWORK_DIR):
     print('Creating new artwork directory at {}'.format(ARTWORK_DIR))
     os.mkdir(ARTWORK_DIR)
+
+
+# Allow the ones that are not 100% downloaded to be re-downloaded
+history = get_download_history()
+for index, item in enumerate(history):
+    if item['progress'] != 100:
+        history[index] = { **item, 'retriable': True }
+with open(DOWNLOAD_HISTORY_FILE, 'w') as f:
+    json.dump(history, f)
+    f.close()
 
 
 class MainWindow(QWidget):

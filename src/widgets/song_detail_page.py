@@ -119,6 +119,7 @@ class Header(QWidget):
             self.start_download_thread({
                 'id': str(uuid4()),
                 'url': link['url'],
+                'retriable': False,
                 'title': self.song['title'],
                 'artwork_local_path': '{}/{}.jpg'.format(ARTWORK_DIR, filename),
                 'artwork_url': self.song['artwork'],

@@ -11,7 +11,7 @@ TODO
 from PySide2.QtCore import Qt, Slot
 from PySide2.QtWidgets import QScrollArea, QVBoxLayout, QWidget, QLabel, QHBoxLayout
 from PySide2.QtGui import QPixmap, QFont
-from utils import get_download_history, css, timeago, download_song
+from utils import get_download_history, css, timeago, download_song, update_download_history
 from widgets.run_thread import RunThread
 from widgets.buttons import IconButton
 from signals import DownloadHistorySignal
@@ -55,7 +55,7 @@ class DownloadItem(QWidget):
         self.retry_btn.setFixedHeight(40)
         self.retry_btn.setFixedWidth(60)
         item_container_layout.addWidget(self.retry_btn)
-        if self.item['progress'] == 100:
+        if not self.item['retriable']:
             self.retry_btn.hide()
 
 
@@ -119,8 +119,9 @@ class DownloadItem(QWidget):
             self.item_label.setText(self.get_text())
             self.render_artwork()
 
-            if self.item['progress'] == 100:
+            if item['retriable']:
                 self.retry_btn.hide()
+                update_download_history({ **item, 'retriable': False })
 
 
 class Downloads(QWidget):
