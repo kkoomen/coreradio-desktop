@@ -15,14 +15,12 @@ from widgets.run_thread import RunThread
 from widgets.buttons import IconButton
 from spider import CoreRadioSpider
 from typography import H2
-from utils import css, get_settings, replace_multiple, get_download_history, update_download_history, download_song
-from signals import DownloadHistorySignal
+from utils import css, download_song, get_download_history, get_settings, replace_multiple
 from constants import DOWNLOAD_HISTORY_FILE, ARTWORK_DIR
 import colors
 import time
 import requests
 import json
-import os
 from uuid import uuid4
 from datetime import datetime
 
