@@ -167,3 +167,8 @@ def download_song(item):
         logging.info('Download complete, saved as: {}/{}'.format(settings['file_storage_location'], item['filename']))
         file.close()
     return True
+
+
+def pluralize(singular, plural, count):
+    text = singular if count == 1 else plural
+    return '{} {}'.format(count, text)

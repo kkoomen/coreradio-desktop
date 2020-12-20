@@ -15,7 +15,7 @@ from widgets.run_thread import RunThread
 from widgets.buttons import IconButton
 from spider import CoreRadioSpider
 from typography import H2
-from utils import css, download_song, get_download_history, get_settings, replace_multiple
+from utils import css, download_song, get_download_history, get_settings, replace_multiple, pluralize
 from constants import DOWNLOAD_HISTORY_FILE, ARTWORK_DIR
 import colors
 import time
@@ -95,7 +95,9 @@ class Header(QWidget):
         self.layout.addWidget(self.right_container, 0, 1)
 
         # Info on the left
-        info_text = '{} · {} songs'.format(self.song['genre'], len(self.song['songlist'])).upper()
+        songs_amount = len(self.song['songlist']) if self.song['full_release'] else len([s for s in self.song['songlist'] if s['released']])
+        songs_text = pluralize('song', 'songs', songs_amount)
+        info_text = '{} · {}'.format(self.song['genre'], songs_text).upper()
         self.left_container_layout.addWidget(QLabel(info_text))
 
         # Download buttons on the right
