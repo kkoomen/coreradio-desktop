@@ -11,6 +11,7 @@ Uses a Signal to alert the main thread of completion.
 
 
 from PySide2.QtCore import QThread, Signal
+import logging
 
 
 class RunThread(QThread):
@@ -32,7 +33,7 @@ class RunThread(QThread):
         try:
             result = self.func(*self.args, **self.kwargs)
         except Exception as err:
-            print('Could not run thread function: {}'.format(err))
+            logging.info('Could not run thread function: {}'.format(err))
             result = err
         finally:
             if self.finished is not None:

@@ -23,6 +23,7 @@ import requests
 import json
 from uuid import uuid4
 from datetime import datetime
+import logging
 
 
 class Song(QWidget):
@@ -131,7 +132,7 @@ class Header(QWidget):
         return closure
 
     def start_download_thread(self, item):
-        print('Starting download thread: {}'.format(item['id']))
+        logging.info('Starting download thread: {}'.format(item['id']))
         thread_id = 'download_thread_{}'.format(item['id'])
         history = get_download_history()
         history.append(item)
@@ -203,7 +204,7 @@ class SongDetailPage(QWidget):
 
     def fetch_artwork(self):
         time.sleep(1)
-        print('GET {}'.format(self.song['artwork']))
+        logging.info('GET {}'.format(self.song['artwork']))
         try:
             response = requests.get(self.song['artwork'])
             self.artwork_content = response.content
@@ -218,9 +219,8 @@ class SongDetailPage(QWidget):
             picture = QPixmap(imgWidget)
             picture = picture.scaled(self.artwork_size, self.artwork_size, Qt.KeepAspectRatio)
             self.artwork_label.setPixmap(picture)
-            print('[DONE] GET {}'.format(self.song['artwork']))
         else:
-            print('[FAILED] GET {}'.format(self.song['artwork']))
+            logging.warn('[FAILED] GET {}'.format(self.song['artwork']))
 
     def get_song_info(self):
         self.loading = True

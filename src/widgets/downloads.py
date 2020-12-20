@@ -19,6 +19,7 @@ from constants import DOWNLOAD_HISTORY_FILE
 import colors
 import json
 import os
+import logging
 
 
 class DownloadItem(QWidget):
@@ -98,11 +99,11 @@ class DownloadItem(QWidget):
     def delete(self):
         filepath ='{}/{}'.format(self.item['location'], self.item['filename'])
         if os.path.exists(filepath):
-            print('Deleting downloaded file: {}'.format(filepath))
+            logging.info('Deleting downloaded file: {}'.format(filepath))
             os.remove(filepath)
 
         if os.path.exists(self.item['artwork_local_path']):
-            print('Deleting artwork in {}'.format(self.item['artwork_local_path']))
+            logging.info('Deleting artwork in {}'.format(self.item['artwork_local_path']))
             os.remove(self.item['artwork_local_path'])
 
         history = get_download_history()

@@ -18,6 +18,8 @@ from utils import clickable, css
 import time
 import requests
 import colors
+import logging
+
 
 class SongPreview(QWidget):
 
@@ -53,7 +55,7 @@ class SongPreview(QWidget):
 
     def fetch_artwork(self):
         time.sleep(1)
-        print('GET {}'.format(self.artwork))
+        logging.info('GET {}'.format(self.artwork))
         try:
             response = requests.get(self.artwork)
             self.artwork_content = response.content
@@ -68,6 +70,5 @@ class SongPreview(QWidget):
             picture = QPixmap(imgWidget)
             picture = picture.scaled(self.artwork_size, self.artwork_size, Qt.KeepAspectRatio)
             self.artwork_label.setPixmap(picture)
-            print('[DONE] GET {}'.format(self.artwork))
         else:
-            print('[FAILED] GET {}'.format(self.artwork))
+            logging.warn('[FAILED] GET {}'.format(self.artwork))

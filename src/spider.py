@@ -12,6 +12,8 @@ from bs4 import BeautifulSoup
 import requests
 import json
 import re
+import logging
+
 
 class CoreRadioSpider:
 
@@ -25,7 +27,7 @@ class CoreRadioSpider:
         feed = []
 
         url = self.url('/page/{}'.format(page))
-        print('GET {}'.format(url))
+        logging.info('GET {}'.format(url))
 
         html = requests.get(url).text
         soup = BeautifulSoup(html, 'html.parser')
@@ -42,7 +44,7 @@ class CoreRadioSpider:
 
     def get_song_info(self, url=None):
         result = {}
-        print('GET {}'.format(url))
+        logging.info('GET {}'.format(url))
 
         html = requests.get(url).text
         soup = BeautifulSoup(html, 'html.parser')

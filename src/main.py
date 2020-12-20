@@ -16,14 +16,25 @@ from utils import get_download_history
 import os
 import resources_rc
 import json
+import logging
+
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
+        logging.FileHandler("coreradio.log"),
+        logging.StreamHandler()
+    ]
+)
 
 
 if not os.path.exists(CONFIG_DIR):
-    print('Creating new config directory at {}'.format(CONFIG_DIR))
+    logging.info('Creating new config directory at {}'.format(CONFIG_DIR))
     os.mkdir(CONFIG_DIR)
 
 if not os.path.exists(ARTWORK_DIR):
-    print('Creating new artwork directory at {}'.format(ARTWORK_DIR))
+    logging.info('Creating new artwork directory at {}'.format(ARTWORK_DIR))
     os.mkdir(ARTWORK_DIR)
 
 

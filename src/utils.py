@@ -17,6 +17,7 @@ import json
 import math
 import os
 import requests
+import logging
 
 
 def clickable(widget):
@@ -46,12 +47,12 @@ def css(text, **replacements):
         else:
             result = re.sub(token, replacements[key], result)
     if len(errors) > 0:
-        print('CSS replacements resulted into errors')
-        print('')
-        print(text)
-        print('')
+        logging.info('CSS replacements resulted into errors')
+        logging.info('')
+        logging.info(text)
+        logging.info('')
         for index, err in enumerate(errors):
-            print('{}. {}'.format(index + 1, err))
+            logging.info('{}. {}'.format(index + 1, err))
     return result
 
 
@@ -138,16 +139,15 @@ def download_song(item):
 
     # Download artwork
     if not os.path.exists(item['artwork_local_path']):
-        print('GET {}'.format(item['artwork_url']))
+        logging.info('GET {}'.format(item['artwork_url']))
         res = requests.get(item['artwork_url'])
-        print('[DONE] {}'.format(item['artwork_url']))
         with open(item['artwork_local_path'], 'wb') as f:
             f.write(res.content)
             f.close()
 
     # Download song
     res = requests.get(item['url'], stream=True)
-    print('GET {}'.format(item['url']))
+    logging.info('GET {}'.format(item['url']))
 
     total_length = int(res.headers.get('content-length'))
     current_length = 1
@@ -164,6 +164,6 @@ def download_song(item):
                     update_download_history(new_item)
                     DownloadHistorySignal.progress.emit(new_item)
                 file.write(chunk)
-        print('Download complete, saved as: {}/{}'.format(settings['file_storage_location'], item['filename']))
+        logging.info('Download complete, saved as: {}/{}'.format(settings['file_storage_location'], item['filename']))
         file.close()
     return True
