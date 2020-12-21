@@ -9,7 +9,7 @@ TODO
 
 
 from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout, QHBoxLayout, QLabel, QScrollArea, QSizePolicy, QVBoxLayout, QWidget
+from PySide2.QtWidgets import QGridLayout, QHBoxLayout, QLabel, QScrollArea, QSizePolicy, QVBoxLayout, QWidget, QStackedLayout
 from PySide2.QtGui import QImage, QPixmap
 from widgets.run_thread import RunThread
 from widgets.buttons import IconButton
@@ -65,6 +65,7 @@ class Header(QWidget):
         super(Header, self).__init__()
         self.song = song
         self.settings = get_settings()
+
         self.layout = QGridLayout()
         self.layout.setMargin(0)
         self.layout.setContentsMargins(0, 0, 0, 25)
@@ -154,8 +155,12 @@ class SongDetailPage(QWidget):
         self.artwork_size = 400
         self.song = None
 
-        self.layout = QVBoxLayout()
+        self.layout = QStackedLayout()
         self.layout.setMargin(0)
+
+        self.loading_label = QLabel('Loading...', alignment=Qt.AlignCenter)
+        self.layout.addWidget(self.loading_label)
+        self.layout.setCurrentWidget(self.loading_label)
 
         self.page_widget = QScrollArea()
         self.page_widget.setWidgetResizable(True)
@@ -234,5 +239,6 @@ class SongDetailPage(QWidget):
         if self.song is not None:
             self.render_song_info()
             self.loading = False
+            self.layout.setCurrentWidget(self.page_widget)
         else:
-            self.page_layout.addWidget(QLabel("Something wen't wrong"))
+            self.loading_label.setText("Something wen't wrong, please try again")

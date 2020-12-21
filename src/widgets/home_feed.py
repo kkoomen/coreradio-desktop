@@ -8,8 +8,8 @@ TODO
 """
 
 
-from PySide2.QtCore import QEvent
-from PySide2.QtWidgets import QScrollArea, QVBoxLayout, QWidget, QLabel
+from PySide2.QtCore import QEvent, Qt
+from PySide2.QtWidgets import QLabel, QScrollArea, QStackedLayout, QWidget
 from widgets.song_preview import SongPreview
 from widgets.flow_layout import FlowLayout
 from widgets.run_thread import RunThread
@@ -26,8 +26,12 @@ class HomeFeed(QWidget):
         self.page = 1
         self.loading = False
 
-        self.layout = QVBoxLayout()
+        self.layout = QStackedLayout()
         self.layout.setMargin(0)
+
+        self.loading_label = QLabel('Loading...', alignment=Qt.AlignCenter)
+        self.layout.addWidget(self.loading_label)
+        self.layout.setCurrentWidget(self.loading_label)
 
         self.page_widget = QScrollArea()
         self.page_widget.setWidgetResizable(True)
@@ -69,6 +73,7 @@ class HomeFeed(QWidget):
                                              title=item['title'],
                                              url=item['href'])
                 self.flow_layout.addWidget(preview_widget)
-                self.loading = False
+            self.loading = False
+            self.layout.setCurrentWidget(self.page_widget)
         else:
-            self.flow_layout.addWidget(QLabel("Something wen't wrong"))
+            self.loading_label.setText("Something wen't wrong, please try again")
