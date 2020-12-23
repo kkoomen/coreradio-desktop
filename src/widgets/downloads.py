@@ -9,7 +9,7 @@ TODO
 
 
 from PySide2.QtCore import Qt, Slot
-from PySide2.QtWidgets import QScrollArea, QVBoxLayout, QWidget, QLabel, QHBoxLayout
+from PySide2.QtWidgets import QScrollArea, QVBoxLayout, QWidget, QLabel, QHBoxLayout, QStackedLayout
 from PySide2.QtGui import QPixmap, QFont
 from utils import get_download_history, css, timeago, download_song, update_download_history
 from widgets.run_thread import RunThread
@@ -132,7 +132,7 @@ class Downloads(QWidget):
         self.history = get_download_history()
         self.history.reverse()
 
-        self.layout = QVBoxLayout()
+        self.layout = QStackedLayout()
         self.layout.setMargin(0)
 
         self.page_widget = QScrollArea()
@@ -145,6 +145,12 @@ class Downloads(QWidget):
         self.page_layout = QVBoxLayout(widget, alignment=Qt.AlignTop)
         self.page_layout.setMargin(0)
         self.page_layout.setContentsMargins(25, 25, 25, 25)
+        self.layout.setCurrentWidget(self.page_widget)
+
+        if len(self.history) == 0:
+            self.history_empty_label = QLabel('You have not downloaded anything yet', alignment=Qt.AlignCenter)
+            self.layout.addWidget(self.history_empty_label)
+            self.layout.setCurrentWidget(self.history_empty_label)
 
         for item in self.history:
             self.page_layout.addWidget(DownloadItem(item=item))
