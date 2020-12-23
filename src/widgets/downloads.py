@@ -148,7 +148,7 @@ class Downloads(QWidget):
         self.layout.setCurrentWidget(self.page_widget)
 
         if len(self.history) == 0:
-            self.history_empty_label = QLabel('You have not downloaded anything yet', alignment=Qt.AlignCenter)
+            self.history_empty_label = QLabel('No downloads', alignment=Qt.AlignCenter)
             self.layout.addWidget(self.history_empty_label)
             self.layout.setCurrentWidget(self.history_empty_label)
 
