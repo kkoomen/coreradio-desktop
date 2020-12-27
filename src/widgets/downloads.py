@@ -145,6 +145,7 @@ class Downloads(QWidget):
         self.page_layout = QVBoxLayout(widget, alignment=Qt.AlignTop)
         self.page_layout.setMargin(0)
         self.page_layout.setContentsMargins(25, 25, 25, 25)
+        self.layout.addWidget(self.page_widget)
         self.layout.setCurrentWidget(self.page_widget)
 
         if len(self.history) == 0:
@@ -155,5 +156,4 @@ class Downloads(QWidget):
         for item in self.history:
             self.page_layout.addWidget(DownloadItem(item=item))
 
-        self.layout.addWidget(self.page_widget)
         self.setLayout(self.layout)

@@ -13,6 +13,7 @@ import requests
 import json
 import re
 import logging
+import html
 
 
 class CoreRadioSpider:
@@ -29,8 +30,8 @@ class CoreRadioSpider:
         url = self.url('/page/{}'.format(page))
         logging.info('GET {}'.format(url))
 
-        html = requests.get(url).text
-        soup = BeautifulSoup(html, 'html.parser')
+        txt = requests.get(url).text
+        soup = BeautifulSoup(txt, 'html.parser')
         container = soup.find(id='dle-content')
         if container:
             for item in container.select('.tcarusel-item'):
@@ -46,15 +47,16 @@ class CoreRadioSpider:
         result = {}
         logging.info('GET {}'.format(url))
 
-        html = requests.get(url).text
-        soup = BeautifulSoup(html, 'html.parser')
+        txt = requests.get(url).text
+        soup = BeautifulSoup(txt, 'html.parser')
         container = soup.find(id='dle-content')
         if container:
             script_tag = container.select('[type="application/ld+json"]')
             inline_info = json.loads(str(script_tag[0].string))
             result['genre'] = inline_info['description']['genre']
             result['artwork'] = inline_info['image']
-            result['title'] = inline_info['name']
+            result['title'] = html.unescape(inline_info['name'])
+            print("result['title'] >>>>", result['title']);
 
             # Get the song list info
             info_container = container.select('.full-news-info')[0]
