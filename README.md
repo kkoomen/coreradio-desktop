@@ -2,6 +2,7 @@
 
 ![home](./home.jpg)
 ![downloads](./downloads.jpg)
+![song detail page](./song-detail.jpg)
 
 # Installation
 
