@@ -14,6 +14,7 @@ from widgets.home_feed import HomeFeed
 from widgets.downloads import Downloads
 from widgets.user_settings import UserSettings
 from widgets.buttons import IconButton
+from widgets.search_bar import SearchBar
 from signals import PageSignal
 from utils import get_download_history, css
 from signals import DownloadHistorySignal
@@ -39,7 +40,8 @@ class Sidebar(QWidget):
         widget = QWidget(self.scrollarea)
         self.scrollarea.setWidget(widget)
 
-        self.flow_layout = QVBoxLayout(widget, alignment=Qt.AlignTop)
+        self.page_layout = QVBoxLayout(widget, alignment=Qt.AlignTop)
+        self.page_layout.addWidget(SearchBar())
 
         self.register_menu_item('Home', icon='home', page=HomeFeed)
         self.register_menu_item('Downloads', icon='download', page=Downloads)
@@ -86,4 +88,4 @@ class Sidebar(QWidget):
                          on_click=lambda: PageSignal.changed.emit(page()))
         property_name = '{}_menu_item'.format(re.sub(r'\s+', '_', text).lower())
         setattr(self, property_name, btn)
-        self.flow_layout.addWidget(btn)
+        self.page_layout.addWidget(btn)

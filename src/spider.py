@@ -56,7 +56,6 @@ class CoreRadioSpider:
             result['genre'] = inline_info['description']['genre']
             result['artwork'] = inline_info['image']
             result['title'] = html.unescape(inline_info['name'])
-            print("result['title'] >>>>", result['title']);
 
             # Get the song list info
             info_container = container.select('.full-news-info')[0]
@@ -102,5 +101,14 @@ class CoreRadioSpider:
 
         return result
 
-    def search(self, keywords=None):
-        pass
+    def get_search_suggestions(self, keywords=None):
+        suggestions = []
+        txt = requests.post(self.url('/engine/ajax/search.php'), data={'query': keywords.replace(' ', '+')}).text
+        soup = BeautifulSoup(txt, 'html.parser')
+        for link in soup.children:
+            if link.name.lower() == 'a':
+                suggestions.append({
+                    'url': link.get('href'),
+                    'label': link.find('span').string
+                })
+        return suggestions
