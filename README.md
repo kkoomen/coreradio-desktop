@@ -1,8 +1,8 @@
 # Coreradio Desktop
 
 ![home](./home.jpg)
-![downloads](./downloads.jpg)
 ![song detail page](./song-detail.jpg)
+![downloads](./downloads.jpg)
 
 # Installation
 
