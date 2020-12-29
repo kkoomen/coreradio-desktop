@@ -24,4 +24,5 @@ UserSettingsSignal = UserSettings()
 class DownloadHistory(QObject):
     put = Signal(dict)
     progress = Signal(dict)
+    deleted = Signal(dict)
 DownloadHistorySignal = DownloadHistory()

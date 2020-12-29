@@ -28,6 +28,7 @@ class Sidebar(QWidget):
         super(Sidebar, self).__init__()
         DownloadHistorySignal.put.connect(self.render_total_downloads)
         DownloadHistorySignal.progress.connect(self.render_total_downloads)
+        DownloadHistorySignal.deleted.connect(self.render_total_downloads)
         self.sidebar_width = 300
         self.setStyleSheet('background: rgba(0, 0, 0, 0.05);');
         self.setFixedWidth(self.sidebar_width)

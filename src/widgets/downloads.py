@@ -59,7 +59,6 @@ class DownloadItem(QWidget):
         if not self.item['retriable']:
             self.retry_btn.hide()
 
-
         delete_btn = IconButton(text='Delete', on_click=self.delete)
         delete_btn.setFixedHeight(40)
         delete_btn.setFixedWidth(70)
@@ -112,6 +111,8 @@ class DownloadItem(QWidget):
             json.dump(filtered_history, f)
             f.close()
             self.setParent(None)
+
+        DownloadHistorySignal.deleted.emit(self.item)
 
     @Slot(dict)
     def update(self, item):
