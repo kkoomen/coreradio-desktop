@@ -17,5 +17,5 @@ shiboken2==5.15.2
 snowballstemmer==2.0.0
 soupsieve==2.1
 tabulate==0.8.7
-urllib3==1.26.2
+urllib3==1.26.3
 uuid==1.30
