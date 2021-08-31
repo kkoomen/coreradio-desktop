@@ -1,5 +1,7 @@
 # Coreradio Desktop
 
+:warning: NOTE: The website changed and thus the crawlers do not work anymore.
+
 ![home](./home.jpg)
 ![song detail page](./song-detail.jpg)
 ![downloads](./downloads.jpg)
